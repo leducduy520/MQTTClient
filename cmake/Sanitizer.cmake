@@ -1,0 +1,52 @@
+message(STATUS "Include Sanitizer")
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    add_compile_options("-fno-omit-frame-pointer")
+    add_link_options("-fno-omit-frame-pointer")
+
+    if(ENABLE_ADDRESS_SANITIZER)
+        message(STATUS "Activating Address Sanitizer")
+        add_compile_options("-fsanitize=address")
+        add_link_options("-fsanitize=address")
+    endif()
+
+    if(ENABLE_UNDEFINED_SANITIZER)
+        message(STATUS "Activating Undefined Sanitizer")
+        add_compile_options("-fsanitize=undefined")
+        add_link_options("-fsanitize=undefined")
+    endif()
+
+    if(ENABLE_LEAK_SANITIZER)
+        add_compile_options("-fsanitize=leak")
+        add_link_options("-fsanitize=leak")
+    endif()
+
+    if(ENABLE_THREAD_SANITIZER)
+        if(ADDR OR LEAK)
+            message(WARNING "thread does not work with: address and leak")
+        endif()
+
+        message(STATUS "Activating Thread Sanitizer")
+        add_compile_options("-fsanitize=thread")
+        add_link_options("-fsanitize=thread")
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if(ENABLE_ADDRESS_SANITIZER)
+        message(STATUS "Activating Address Sanitizer")
+        add_compile_options("/fsanitize=address")
+    endif()
+
+    if(ENABLE_UNDEFINED_SANITIZER)
+        message(STATUS "sanitize=undefined not avail. for MSVC")
+    endif()
+
+    if(ENABLE_LEAK_SANITIZER)
+        message(STATUS "sanitize=leak not avail. for MSVC")
+    endif()
+
+    if(ENABLE_THREAD_SANITIZER)
+        message(STATUS "sanitize=thread not avail. for MSVC")
+    endif()
+else()
+    message(WARNING "This sanitizer not supported in this environment")
+endif()
