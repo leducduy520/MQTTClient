@@ -1,7 +1,9 @@
 {
   "name": "mqttclient",
   "version-string": "0.1.0",
-  "dependencies": ["paho-mqttpp3"],
+  "dependencies": [
+    "paho-mqttpp3"
+  ],
   "overrides": [
     {
       "name": "paho-mqttpp3",

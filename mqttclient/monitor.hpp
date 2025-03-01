@@ -14,11 +14,11 @@
  * written to stderr.
  *
  * @author duyld15
- * @date February 23, 2025
  */
 
 #include <cstdarg>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -157,9 +157,9 @@ public:
    * @param line The line number in the source file.
    * @return A reference to the modified Printer object.
    */
-  Printer &lineinfo(const char *file, unsigned int line) {
+  Printer &lineinfo(const char *file, unsigned int line, const char *func) {
     stringstream ss;
-    ss << "at " << file << ":" << line;
+    ss << "at " << file << ":" << line << " - " << func;
     lineinfo_ = "(" + ss.str() + ")\n";
     return *this;
   }
@@ -256,59 +256,57 @@ public:
 };
 
 /// Macro alias for ddbg::Printer.
-#define DDBG_PRINTER ddbg::Printer
+#define DD_PRINTER ddbg::Printer
 
 /// Macro for providing file and line details.
-#define DDBG_DETAIL_LINE __FILE__, __LINE__
+#define DD_DETAIL_LINE __FILE__, __LINE__, __FUNCTION__
 
 /// Macro to signal the end of a logged message.
-#define DDBG_END ddbg::end()
+#define DD_END ddbg::end()
 /// Macro to signal the end of a line in logged messages.
-#define DDBG_ENDL ddbg::endl()
+#define DD_ENDL ddbg::endl()
 
 /// Macro for basic timestamp detail.
-#define DDBG_DETAIL_LEVEL_1 timestamp()
+#define DD_LEV1 timestamp()
 /// Macro for timestamp with additional line information.
-#define DDBG_DETAIL_LEVEL_2 timestamp().lineinfo(DDBG_DETAIL_LINE)
+#define DD_LEV2 timestamp().lineinfo(DD_DETAIL_LINE)
 
 /// Macro to set the message type to DEBUG.
-#define DDBG_AS_DEBUG type(DDBG_PRINTER::MessageMode::DEBUG)
+#define DD_DEBUG type(DD_PRINTER::MessageMode::DEBUG)
 /// Macro to set the message type to ERROR.
-#define DDBG_AS_ERROR type(DDBG_PRINTER::MessageMode::ERROR)
+#define DD_ERROR type(DD_PRINTER::MessageMode::ERROR)
 /// Macro to set the message type to INFO.
-#define DDBG_AS_INFO type(DDBG_PRINTER::MessageMode::INFO)
+#define DD_INFO type(DD_PRINTER::MessageMode::INFO)
 
 #ifndef NDEBUG
 /// Macro for debug-level logging.
-#define ddebug(msg, ...) DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_DEBUG
+#define ddebug(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_DEBUG
 /// Macro for debug-level logging with timestamp.
 #define ddebug1(msg, ...)                                                      \
-  DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_DEBUG.DDBG_DETAIL_LEVEL_1
+  DD_PRINTER::format(msg, ##__VA_ARGS__).DD_DEBUG.DD_LEV1
 /// Macro for debug-level logging with timestamp and line info.
 #define ddebug2(msg, ...)                                                      \
-  DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_DEBUG.DDBG_DETAIL_LEVEL_2
+  DD_PRINTER::format(msg, ##__VA_ARGS__).DD_DEBUG.DD_LEV2
 #else
-#define ddebug(msg, ...) DDBG_PRINTER::format("[MDEBUG]")
-#define ddebug1(msg, ...) DDBG_PRINTER::format("[MDEBUG1]")
-#define ddebug2(msg, ...) DDBG_PRINTER::format("[MDEBUG2]")
+#define ddebug(msg, ...) DD_PRINTER::format("[MDEBUG]")
+#define ddebug1(msg, ...) DD_PRINTER::format("[MDEBUG]")
+#define ddebug2(msg, ...) DD_PRINTER::format("[MDEBUG2]")
 #endif
 
 /// Macro for informational logging.
-#define dinfo(msg, ...) DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_INFO
+#define dinfo(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_INFO
 /// Macro for informational logging with timestamp.
-#define dinfo1(msg, ...)                                                       \
-  DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_INFO.DDBG_DETAIL_LEVEL_1
+#define dinfo1(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_INFO.DD_LEV1
 /// Macro for informational logging with timestamp and line info.
-#define dinfo2(msg, ...)                                                       \
-  DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_INFO.DDBG_DETAIL_LEVEL_2
+#define dinfo2(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_INFO.DD_LEV2
 
 /// Macro for error logging.
-#define derror(msg, ...) DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_ERROR
+#define derror(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_ERROR
 /// Macro for error logging with timestamp.
 #define derror1(msg, ...)                                                      \
-  DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_ERROR.DDBG_DETAIL_LEVEL_1
+  DD_PRINTER::format(msg, ##__VA_ARGS__).DD_ERROR.DD_LEV1
 /// Macro for error logging with timestamp and line info.
 #define derror2(msg, ...)                                                      \
-  DDBG_PRINTER::format(msg, ##__VA_ARGS__).DDBG_AS_ERROR.DDBG_DETAIL_LEVEL_2
+  DD_PRINTER::format(msg, ##__VA_ARGS__).DD_ERROR.DD_LEV2
 
 } // namespace ddbg

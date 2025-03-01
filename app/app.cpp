@@ -1,10 +1,6 @@
 ﻿#include "mqttclient.hpp"
 #include <sstream>
 
-const std::string SERVER_ADDRESS{"tcp://localhost:1883"};
-const std::string CLIENT_ID{"paho_cpp_async_example"};
-const std::string TOPIC{"hello"};
-
 bool subscribe_success = false;
 bool connected = false;
 std::condition_variable cv;
@@ -15,21 +11,21 @@ void main_event_handle(mqttcpp::CallbackEvent event,
   using namespace mqttcpp;
   auto client = MqttClient::Instance.get();
   switch (event) {
-  case CallbackEvent::CONNECTED: {
+  case CallbackEvent::EVENT_CONNECTED: {
     std::cout << "Connected to broker" << std::endl;
     {
       std::lock_guard lock(event_mutex);
       cv.notify_one();
     }
   } break;
-  case CallbackEvent::DISCONNECTED: {
+  case CallbackEvent::EVENT_DISCONNECTED: {
     std::cout << "Disconnected from broker" << std::endl;
     {
       std::lock_guard lock(event_mutex);
       cv.notify_one();
     }
   } break;
-  case CallbackEvent::ACTION_SUCCESS: {
+  case CallbackEvent::EVENT_ACTION_SUCCESS: {
     mqtt::token_ptr ptok = info.asToken();
     if (ptok) {
       std::ostringstream oss;

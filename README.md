@@ -44,15 +44,15 @@ After building the project, you can run the application:
 
 The project provides several options that can be enabled or disabled in the CMakeLists.txt file:
 
-- BUILD_SHARED_LIBS: Build shared libraries (default: ON)
-- ENABLE_CMAKE_FORMAT: Enable CMake Format (default: ON)
-- ENABLE_CLANG_FORMAT: Enable Clang Format (default: ON)
-- ENABLE_TESTING: Enable Testing (default: OFF)
-- ENABLE_ADDRESS_SANITIZER: Enable Address Sanitizer (default: ON)
-- ENABLE_UNDEFINED_SANITIZER: Enable Undefined Sanitizer (default: OFF)
-- ENABLE_LEAK_SANITIZER: Enable Leak Sanitizer (default: OFF)
-- ENABLE_THREAD_SANITIZER: Enable Thread Sanitizer (default: OFF)
-- ENABLE_LTO: Enable Link Time Optimization (default: OFF)
+- **BUILD_SHARED_LIBS**: Build shared libraries (default: **ON**)
+- **ENABLE_CMAKE_FORMAT**: Enable CMake Format (default: **ON**)
+- **ENABLE_CLANG_FORMAT**: Enable Clang Format (default: **ON**)
+- **ENABLE_TESTING**: Enable Testing (default: **OFF**)
+- **ENABLE_ADDRESS_SANITIZER**: Enable Address Sanitizer (default: **ON**)
+- **ENABLE_UNDEFINED_SANITIZER**: Enable Undefined Sanitizer (default: **OFF**)
+- **ENABLE_LEAK_SANITIZER**: Enable Leak Sanitizer (default: **OFF**)
+- **ENABLE_THREAD_SANITIZER**: Enable Thread Sanitizer (default: **OFF**)
+- **ENABLE_LTO**: Enable Link Time Optimization (default: **OFF**)
 
 ## License
 
