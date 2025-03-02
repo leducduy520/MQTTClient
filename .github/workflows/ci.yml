@@ -29,10 +29,10 @@ jobs:
     - name: Configure CMake
       env: 
         VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.VCPKG_ROOT }}
-      run: cmake -B build -S .
+      run: cmake --preset linux-release
 
     - name: Build
-      run: cmake --build build --config Release
+      run: cmake --build --preset linux-release --config Release
     
     # - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
     #   uses: lukka/run-cmake@v10
