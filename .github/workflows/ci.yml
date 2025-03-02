@@ -28,7 +28,7 @@ jobs:
 
     - name: Configure CMake
       env: 
-        VCPKG_ROOT: '$VCPKG_ROOT'
+        VCPKG_ROOT: ${{env.VCPKG_ROOT}}
       run: cmake --preset linux-release
 
     - name: Build
