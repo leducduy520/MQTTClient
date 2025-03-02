@@ -3,8 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - main
-      - dev
+      - dev*
   pull_request:
     branches:
       - main
@@ -13,30 +12,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        submodules: true
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
 
-    - uses: lukka/get-cmake@latest
+      - uses: lukka/get-cmake@latest
 
-    - name: Setup anew (or from cache) vcpkg (and does not build any package)
-      id: setup-vcpkg
-      uses: lukka/run-vcpkg@v11
-      with:
-        vcpkgGitCommitId: efb1e7436979a30c4d3e5ab2375fd8e2e461d541
+      - name: Setup anew (or from cache) vcpkg (and does not build any package)
+        id: setup-vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: efb1e7436979a30c4d3e5ab2375fd8e2e461d541
 
-    - name: Configure CMake
-      env: 
-        VCPKG_ROOT: ${{env.VCPKG_ROOT}}
-      run: cmake --preset linux-release
+      - name: Cache CMake binaries
+        uses: actions/cache@v4
+        with:
+          path: out/build/linux-release
+          key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-
 
-    - name: Build
-      run: cmake --build --preset linux-release --config Release
-    
-    # - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
-    #   uses: lukka/run-cmake@v10
-    #   with:
-    #     configurePreset: 'linux-release'
-    #     buildPreset: 'linux-release'
-    #     buildPresetAdditionalArgs: "['--config Release']"
+      - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: "linux-release"
+          buildPreset: "linux-release"
+          buildPresetAdditionalArgs: "['--config Release']"
