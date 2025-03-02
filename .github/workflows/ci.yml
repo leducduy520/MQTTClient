@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
     - uses: lukka/get-cmake@latest
 
     - name: Setup anew (or from cache) vcpkg (and does not build any package)
