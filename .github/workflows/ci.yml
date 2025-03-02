@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
@@ -13,35 +14,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+    - uses: lukka/get-cmake@latest
 
-    - name: Cache vcpkg binaries
-      uses: actions/cache@v2
+    - name: Setup anew (or from cache) vcpkg (and does not build any package)
+      uses: lukka/run-vcpkg@v11
+    
+    - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
+      uses: lukka/run-cmake@v10
       with:
-        path: ~/.cache/vcpkg
-        key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
-        restore-keys: |
-          ${{ runner.os }}-vcpkg-
-
-    - name: Set up vcpkg
-      uses: microsoft/setup-vcpkg@v1
-      with:
-        vcpkgGitCommitId: efb1e7436979a30c4d3e5ab2375fd8e2e461d541
-
-    - name: Install dependencies
-      run: vcpkg install paho-mqttpp3
-
-    - name: Cache CMake binaries
-      uses: actions/cache@v2
-      with:
-        path: build
-        key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-cmake-
-
-    - name: Configure CMake
-      run: cmake -B build -S . -DENABLE_ADDRESS_SANITIZER=OFF
-
-    - name: Build
-      run: cmake --build build --config Release
+        configurePreset: 'linux-release'
+        buildPreset: 'linux-release'
+        buildPresetAdditionalArgs: "['--config Release']"
