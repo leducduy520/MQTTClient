@@ -28,7 +28,7 @@ jobs:
 
     - name: Configure CMake
       env: 
-        VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.VCPKG_ROOT }}
+        VCPKG_ROOT: vcpkg
       run: cmake --preset linux-release
 
     - name: Build
