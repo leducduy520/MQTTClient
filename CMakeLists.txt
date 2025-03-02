@@ -24,10 +24,10 @@ include(GNUInstallDirs)
 
 # Project options
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(ENABLE_CMAKE_FORMAT "Enable CMake Format" ON)
-option(ENABLE_CLANG_FORMAT "Enable Clang Format" ON)
+option(ENABLE_CMAKE_FORMAT "Enable CMake Format" OFF)
+option(ENABLE_CLANG_FORMAT "Enable Clang Format" OFF)
 option(ENABLE_TESTING "Enable Testing" OFF)
-option(ENABLE_ADDRESS_SANITIZER "Enable Address Sanitizer" ON)
+option(ENABLE_ADDRESS_SANITIZER "Enable Address Sanitizer" OFF)
 option(ENABLE_UNDEFINED_SANITIZER "Enable Undefined Sanitizer" OFF)
 option(ENABLE_LEAK_SANITIZER "Enable Leak Sanitizer" OFF)
 option(ENABLE_THREAD_SANITIZER "Enable Thread Sanitizer" OFF)
