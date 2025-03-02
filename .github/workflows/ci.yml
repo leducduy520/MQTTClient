@@ -12,7 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -22,11 +21,14 @@ jobs:
     - uses: lukka/get-cmake@latest
 
     - name: Setup anew (or from cache) vcpkg (and does not build any package)
+      id: setup-vcpkg
       uses: lukka/run-vcpkg@v11
       with:
         vcpkgGitCommitId: efb1e7436979a30c4d3e5ab2375fd8e2e461d541
 
     - name: Configure CMake
+      env: 
+        VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.VCPKG_ROOT }}
       run: cmake -B build -S .
 
     - name: Build
