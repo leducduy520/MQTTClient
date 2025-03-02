@@ -20,10 +20,16 @@ jobs:
       uses: lukka/run-vcpkg@v11
       with:
         vcpkgGitCommitId: efb1e7436979a30c4d3e5ab2375fd8e2e461d541
+
+    - name: Configure CMake
+      run: cmake -B build -S .
+
+    - name: Build
+      run: cmake --build build --config Release
     
-    - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
-      uses: lukka/run-cmake@v10
-      with:
-        configurePreset: 'linux-release'
-        buildPreset: 'linux-release'
-        buildPresetAdditionalArgs: "['--config Release']"
+    # - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
+    #   uses: lukka/run-cmake@v10
+    #   with:
+    #     configurePreset: 'linux-release'
+    #     buildPreset: 'linux-release'
+    #     buildPresetAdditionalArgs: "['--config Release']"
