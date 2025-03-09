@@ -1,7 +1,7 @@
 ﻿#include "mqttclient.hpp"
 #include <sstream>
 
-const std::string SERVER_ADDRESS{"tcp://localhost:1883"};
+const std::string SERVER_ADDRESS{"tcp://localhost:30520"};
 const std::string CLIENT_ID{"duyld520"};
 const std::string TOPIC{"hello"};
 
