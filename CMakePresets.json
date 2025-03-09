@@ -6,7 +6,10 @@
       "hidden": true,
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "X_VCPKG_APPLOCAL_DEPS_INSTALL": true
+      }
     },
     {
       "name": "windows-base",
@@ -88,27 +91,33 @@
   "buildPresets": [
     {
       "name": "x64-debug",
-      "configurePreset": "x64-debug"
+      "configurePreset": "x64-debug",
+      "configuration": "Debug"
     },
     {
       "name": "x64-release",
-      "configurePreset": "x64-release"
+      "configurePreset": "x64-release",
+      "configuration": "Release"
     },
     {
       "name": "x86-debug",
-      "configurePreset": "x86-debug"
+      "configurePreset": "x86-debug",
+      "configuration": "Debug"
     },
     {
       "name": "x86-release",
-      "configurePreset": "x86-release"
+      "configurePreset": "x86-release",
+      "configuration": "Release"
     },
     {
       "name": "linux-release",
-      "configurePreset": "linux-release"
+      "configurePreset": "linux-release",
+      "configuration": "Release"
     },
     {
       "name": "linux-debug",
-      "configurePreset": "linux-debug"
+      "configurePreset": "linux-debug",
+      "configuration": "Debug"
     }
   ]
 }

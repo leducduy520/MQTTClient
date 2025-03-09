@@ -24,18 +24,21 @@
 
 using namespace std;
 
-namespace ddbg {
-/**
+namespace ddbg
+{
+    /**
  * @brief Empty structure used as a log output terminator.
  */
-struct end {};
+    struct end
+    {};
 
-/**
+    /**
  * @brief Empty structure used to indicate a line break in the log output.
  */
-struct endl {};
+    struct endl
+    {};
 
-/**
+    /**
  * @brief Class for formatted logging and debugging output.
  *
  * The Printer class supports building a log message using operator<<
@@ -43,33 +46,35 @@ struct endl {};
  * line information. It also provides a static format method that acts like
  * a printf-style formatter.
  */
-class Printer {
-  string message_;           ///< Accumulated log message.
-  string startcolor_;        ///< ANSI color code for starting the output.
-  const string finishcolor_; ///< ANSI code to reset the output formatting.
-  string modeprefix_; ///< Prefix to denote the log message type (Error, Info,
-                      ///< Debug).
-  string lineinfo_;   ///< Information about the file and line number.
-  string timestamp_;  ///< Timestamp for when the message was logged.
+    class Printer
+    {
+        string message_;           ///< Accumulated log message.
+        string startcolor_;        ///< ANSI color code for starting the output.
+        const string finishcolor_; ///< ANSI code to reset the output formatting.
+        string modeprefix_;        ///< Prefix to denote the log message type (Error, Info,
+                                   ///< Debug).
+        string lineinfo_;          ///< Information about the file and line number.
+        string timestamp_;         ///< Timestamp for when the message was logged.
 
-public:
-  /**
+    public:
+        /**
    * @brief Enumerates the supported message types.
    */
-  enum MessageMode {
-    ERROR, ///< Indicates an error message.
-    INFO,  ///< Indicates an informational message.
-    DEBUG, ///< Indicates a debug message.
-  };
+        enum MessageMode
+        {
+            ERROR, ///< Indicates an error message.
+            INFO,  ///< Indicates an informational message.
+            DEBUG, ///< Indicates a debug message.
+        };
 
-  /**
+        /**
    * @brief Constructs a Printer with an initial message.
    * @param message The initial log message.
    */
-  explicit Printer(const string &message)
-      : message_(message), finishcolor_("\033[0m") {}
+        explicit Printer(const string& message) : message_(message), finishcolor_("\033[0m")
+        {}
 
-  /**
+        /**
    * @brief Creates a formatted Printer using a printf-style format.
    *
    * Accepts a format string and variable arguments to produce a log message.
@@ -78,33 +83,33 @@ public:
    * @param ... Variable arguments corresponding to the format.
    * @return A Printer instance with the formatted message.
    */
-  static Printer format(const char *msg, ...) {
-    // Initialize variable argument list
-    va_list args;
-    va_start(args, msg);
+        static Printer format(const char* msg, ...)
+        {
+            // Initialize variable argument list
+            va_list args;
+            va_start(args, msg);
 
-    // Determine the size of the formatted string
-    va_list argsCopy;
-    va_copy(argsCopy, args);
-    int size =
-        vsnprintf(nullptr, 0, msg, argsCopy) + 1; // Include null terminator
-    va_end(argsCopy);
+            // Determine the size of the formatted string
+            va_list argsCopy;
+            va_copy(argsCopy, args);
+            int size = vsnprintf(nullptr, 0, msg, argsCopy) + 1; // Include null terminator
+            va_end(argsCopy);
 
-    // Allocate a buffer to hold the formatted string
-    std::vector<char> buffer(size);
+            // Allocate a buffer to hold the formatted string
+            std::vector<char> buffer(size);
 
-    // Format the string
-    vsnprintf(buffer.data(), size, msg, args);
+            // Format the string
+            vsnprintf(buffer.data(), size, msg, args);
 
-    // Clean up the variable argument list
-    va_end(args);
+            // Clean up the variable argument list
+            va_end(args);
 
-    // Return the formatted string
-    auto mes = std::string(buffer.data());
-    return Printer(mes);
-  }
+            // Return the formatted string
+            auto mes = std::string(buffer.data());
+            return Printer(mes);
+        }
 
-  /**
+        /**
    * @brief Sets the message type and corresponding formatting.
    *
    * Adjusts the message prefix and starting color based on the mode.
@@ -112,43 +117,52 @@ public:
    * @param mesmode The message type (ERROR, INFO, DEBUG).
    * @return A reference to the modified Printer object.
    */
-  Printer &type(MessageMode mesmode) {
-    switch (mesmode) {
-    case MessageMode::ERROR: {
-      modeprefix_ = string("Error: ");
-      startcolor_ = "\033[31m";
-    } break;
-    case MessageMode::INFO: {
-      modeprefix_ = string("Info: ");
-      startcolor_ = "\033[34m";
-    } break;
-    case MessageMode::DEBUG: {
-      modeprefix_ = string("Debug: ");
-      startcolor_ = "\033[32m";
-    } break;
-    default:
-      break;
-    }
-    return *this;
-  }
+        Printer& type(MessageMode mesmode)
+        {
+            switch (mesmode)
+            {
+            case MessageMode::ERROR:
+            {
+                modeprefix_ = string("Error: ");
+                startcolor_ = "\033[31m";
+            }
+            break;
+            case MessageMode::INFO:
+            {
+                modeprefix_ = string("Info: ");
+                startcolor_ = "\033[34m";
+            }
+            break;
+            case MessageMode::DEBUG:
+            {
+                modeprefix_ = string("Debug: ");
+                startcolor_ = "\033[32m";
+            }
+            break;
+            default:
+                break;
+            }
+            return *this;
+        }
 
-  /**
+        /**
    * @brief Appends a timestamp to the log message.
    *
    * Formats the current time and adds it to the log output.
    *
    * @return A reference to the modified Printer object.
    */
-  Printer &timestamp() {
-    time_t now = time(nullptr);
-    struct tm *timeinfo = localtime(&now);
-    string timestamp = asctime(timeinfo);
-    timestamp.pop_back(); // Remove newline character
-    timestamp_ = "[" + timestamp + "]\n";
-    return *this;
-  }
+        Printer& timestamp()
+        {
+            time_t now = time(nullptr);
+            struct tm* timeinfo = localtime(&now);
+            string timestamp = asctime(timeinfo);
+            timestamp.pop_back(); // Remove newline character
+            timestamp_ = "[" + timestamp + "]\n";
+            return *this;
+        }
 
-  /**
+        /**
    * @brief Adds file and line information to the log message.
    *
    * Formats the file name and line number where the log message was generated.
@@ -157,46 +171,50 @@ public:
    * @param line The line number in the source file.
    * @return A reference to the modified Printer object.
    */
-  Printer &lineinfo(const char *file, unsigned int line, const char *func) {
-    stringstream ss;
-    ss << "at " << file << ":" << line << " - " << func;
-    lineinfo_ = "(" + ss.str() + ")\n";
-    return *this;
-  }
+        Printer& lineinfo(const char* file, unsigned int line, const char* func)
+        {
+            stringstream ss;
+            ss << "at " << file << ":" << line << " - " << func;
+            lineinfo_ = "(" + ss.str() + ")\n";
+            return *this;
+        }
 
-  /**
+        /**
    * @brief Prepends a string above the main log message.
    *
    * @param str The string to place above the message.
    * @return A reference to the modified Printer object.
    */
-  Printer &above(const string &str) {
-    message_ = str + "\n" + message_;
-    return *this;
-  }
+        Printer& above(const string& str)
+        {
+            message_ = str + "\n" + message_;
+            return *this;
+        }
 
-  /**
+        /**
    * @brief Appends a string below the main log message.
    *
    * @param str The string to place below the message.
    * @return A reference to the modified Printer object.
    */
-  Printer &below(const string &str) {
-    message_ += "\n" + str;
-    return *this;
-  }
+        Printer& below(const string& str)
+        {
+            message_ += "\n" + str;
+            return *this;
+        }
 
-  /**
+        /**
    * @brief Appends a newline to the log message.
    *
    * @return A reference to the modified Printer object.
    */
-  Printer &endl() {
-    message_ += "\n";
-    return *this;
-  }
+        Printer& endl()
+        {
+            message_ += "\n";
+            return *this;
+        }
 
-  /**
+        /**
    * @brief Overloaded operator to append data to the log message.
    *
    * Uses a stringstream to convert data to string and appends it to the log
@@ -206,33 +224,39 @@ public:
    * @param data The data to append.
    * @return A reference to the modified Printer object.
    */
-  template <typename T> Printer &operator<<(T &&data) {
-    stringstream ss;
-    ss << data;
-    message_.append(ss.str());
-    return *this;
-  }
+        template <typename T>
+        Printer& operator<<(T&& data)
+        {
+            stringstream ss;
+            ss << data;
+            message_.append(ss.str());
+            return *this;
+        }
 
-  /**
+        /**
    * @brief Overloaded operator to print the log message and end output.
    *
    * @param data A ddbg::end structure indicating the termination of the log
    * output.
    */
-  void operator<<(struct ddbg::end data) { this->print(); }
+        void operator<<(struct ddbg::end data)
+        {
+            this->print();
+        }
 
-  /**
+        /**
    * @brief Overloaded operator to add a newline and print the log message.
    *
    * @param data A ddbg::endl structure indicating a newline and termination of
    * the log output.
    */
-  void operator<<(struct ddbg::endl data) {
-    this->endl();
-    this->print();
-  }
+        void operator<<(struct ddbg::endl data)
+        {
+            this->endl();
+            this->print();
+        }
 
-  /**
+        /**
    * @brief Overloaded operator for stream manipulators.
    *
    * Applies the provided stream manipulator, prints the log message, and
@@ -240,20 +264,27 @@ public:
    *
    * @param manip A stream manipulator function.
    */
-  void operator<<(std::ostream &(*manip)(std::ostream &)) {
-    this->print();
-    manip(std::cerr);
-  }
+        void operator<<(std::ostream& (*manip)(std::ostream&))
+        {
+            this->print();
+            manip(std::cerr);
+        }
 
-  /**
+        /**
    * @brief Prints the accumulated log message to stderr with formatting.
    */
-  void print() {
-    fprintf(stderr, "\n%s%s%s%s%s%s", startcolor_.c_str(), timestamp_.c_str(),
-            lineinfo_.c_str(), modeprefix_.c_str(), message_.c_str(),
-            finishcolor_.c_str());
-  }
-};
+        void print()
+        {
+            fprintf(stderr,
+                    "\n%s%s%s%s%s%s",
+                    startcolor_.c_str(),
+                    timestamp_.c_str(),
+                    lineinfo_.c_str(),
+                    modeprefix_.c_str(),
+                    message_.c_str(),
+                    finishcolor_.c_str());
+        }
+    };
 
 /// Macro alias for ddbg::Printer.
 #define DD_PRINTER ddbg::Printer
@@ -282,11 +313,9 @@ public:
 /// Macro for debug-level logging.
 #define ddebug(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_DEBUG
 /// Macro for debug-level logging with timestamp.
-#define ddebug1(msg, ...)                                                      \
-  DD_PRINTER::format(msg, ##__VA_ARGS__).DD_DEBUG.DD_LEV1
+#define ddebug1(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_DEBUG.DD_LEV1
 /// Macro for debug-level logging with timestamp and line info.
-#define ddebug2(msg, ...)                                                      \
-  DD_PRINTER::format(msg, ##__VA_ARGS__).DD_DEBUG.DD_LEV2
+#define ddebug2(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_DEBUG.DD_LEV2
 #else
 #define ddebug(msg, ...) DD_PRINTER::format("[MDEBUG]")
 #define ddebug1(msg, ...) DD_PRINTER::format("[MDEBUG]")
@@ -303,10 +332,8 @@ public:
 /// Macro for error logging.
 #define derror(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_ERROR
 /// Macro for error logging with timestamp.
-#define derror1(msg, ...)                                                      \
-  DD_PRINTER::format(msg, ##__VA_ARGS__).DD_ERROR.DD_LEV1
+#define derror1(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_ERROR.DD_LEV1
 /// Macro for error logging with timestamp and line info.
-#define derror2(msg, ...)                                                      \
-  DD_PRINTER::format(msg, ##__VA_ARGS__).DD_ERROR.DD_LEV2
+#define derror2(msg, ...) DD_PRINTER::format(msg, ##__VA_ARGS__).DD_ERROR.DD_LEV2
 
 } // namespace ddbg
