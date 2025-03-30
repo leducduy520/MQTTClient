@@ -133,7 +133,10 @@ namespace mqttcpp
         break;
         case CallbackEvent::EVENT_CONNECTION_UPDATE:
         {
-            dinfo1("Connection update received") << std::endl;
+            auto* data = &info.asConnectData();
+            dinfo1("Connection update received with:\n")
+                << "  - current username: " << data->get_user_name()
+                << "\n  - current password: " << data->get_password() << std::endl;
         }
         break;
         case CallbackEvent::EVENT_CONNECTION_LOST:
@@ -194,6 +197,7 @@ namespace mqttcpp
 
         if (exteventHandler_)
         {
+            ddebug1("Send information to external event handler\n").print();
             exteventHandler_(event, info);
         }
     }
@@ -250,29 +254,39 @@ namespace mqttcpp
         exteventHandler_ = handler;
     }
 
-    bool MqttClient::connect(bool wait, unsigned int wait_for)
+    bool MqttClient::connect(mqtt::token_ptr& token)
     {
-        mqtt::token_ptr token;
         std::function<void()> fn = [this, &token]() mutable {
             dinfo1("[MqttClient] Connecting to broker...\n").print();
             token = client_.connect(connOpts_, nullptr, *connListener_);
         };
-        bool res = common_try(fn, "Connect");
+        return common_try(fn, "Connect");
+    }
+
+    bool MqttClient::connect(bool wait, unsigned int wait_for)
+    {
+        mqtt::token_ptr token;
+        bool res = connect(token);
         if (res && wait)
         {
             make_wait(token, wait_for);
         }
         return res;
+    }
+
+    bool MqttClient::disconnect(mqtt::token_ptr& token)
+    {
+        std::function<void()> fn = [this, &token]() mutable {
+            dinfo1("[MqttClient] Disconnecting...") << std::endl;
+            token = client_.disconnect(TIMEOUT, nullptr, *disconnListener_);
+        };
+        return common_try(fn, "Disconnect");
     }
 
     bool MqttClient::disconnect(bool wait, unsigned int wait_for)
     {
         mqtt::token_ptr token;
-        std::function<void()> fn = [this, &token]() mutable {
-            dinfo1("[MqttClient] Disconnecting...") << std::endl;
-            token = client_.disconnect(TIMEOUT, nullptr, *disconnListener_);
-        };
-        bool res = common_try(fn, "Disconnect");
+        bool res = disconnect(token);
         if (res && wait)
         {
             make_wait(token, wait_for);
@@ -280,9 +294,8 @@ namespace mqttcpp
         return res;
     }
 
-    bool MqttClient::subscribe(const std::string& topic, unsigned int qos, bool wait, unsigned int wait_for)
+    bool MqttClient::subscribe(mqtt::token_ptr& token, const std::string& topic, unsigned int qos)
     {
-        mqtt::token_ptr token;
         std::function<void()> fn = [this, &token, &topic, &qos]() mutable {
             dinfo1("[MqttClient] Subscribing to '") << topic << "' with QOS=" << qos << "..." << std::endl;
             token = client_.subscribe(topic,
@@ -291,7 +304,34 @@ namespace mqttcpp
                                       *subListener_,
                                       mqtt::subscribe_options(true, true, subscribe_options::DONT_SEND_RETAINED));
         };
-        bool res = common_try(fn, "Subscribe");
+        return common_try(fn, "Subscribe");
+    }
+
+    bool MqttClient::subscribe(const std::string& topic, unsigned int qos, bool wait, unsigned int wait_for)
+    {
+        mqtt::token_ptr token;
+        bool res = subscribe(token, topic, qos);
+        if (res && wait)
+        {
+            dinfo2("Gone here\n");
+            make_wait(token, wait_for);
+        }
+        return res;
+    }
+
+    bool MqttClient::unsubscribe(mqtt::token_ptr& token, const std::string& topic)
+    {
+        std::function<void()> fn = [this, &token, &topic]() mutable {
+            dinfo1("[MqttClient] Unsubscribing from '") << topic << "'..." << std::endl;
+            token = client_.unsubscribe(topic, nullptr, *unsubListener_);
+        };
+        return common_try(fn, "Unsubscribe");
+    }
+
+    bool MqttClient::unsubscribe(const std::string& topic, bool wait, unsigned int wait_for)
+    {
+        mqtt::token_ptr token;
+        bool res = unsubscribe(token, topic);
         if (res && wait)
         {
             make_wait(token, wait_for);
@@ -299,19 +339,17 @@ namespace mqttcpp
         return res;
     }
 
-    bool MqttClient::unsubscribe(const std::string& topic, bool wait, unsigned int wait_for)
+    bool MqttClient::publish(mqtt::token_ptr& token,
+                             const std::string& topic,
+                             const std::string& payload,
+                             unsigned int qos)
     {
-        mqtt::token_ptr token;
-        std::function<void()> fn = [this, &token, &topic]() mutable {
-            dinfo1("[MqttClient] Unsubscribing from '") << topic << "'..." << std::endl;
-            token = client_.unsubscribe(topic, nullptr, *unsubListener_);
+        std::function<void()> fn = [this, &token, &topic, &qos, &payload]() mutable {
+            dinfo1("[MqttClient] Publishing to '") << topic << "': " << payload << std::endl;
+            mqtt::message_ptr pubmsg = mqtt::make_message(topic, payload, qos, false);
+            token = client_.publish(pubmsg, nullptr, *pubListener_);
         };
-        bool res = common_try(fn, "Unsubscribe");
-        if (res && wait)
-        {
-            make_wait(token, wait_for);
-        }
-        return res;
+        return common_try(fn, "Publish");
     }
 
     bool MqttClient::publish(const std::string& topic,
@@ -321,12 +359,7 @@ namespace mqttcpp
                              unsigned int wait_for)
     {
         mqtt::token_ptr token;
-        std::function<void()> fn = [this, &token, &topic, &qos, &payload]() mutable {
-            dinfo1("[MqttClient] Publishing to '") << topic << "': " << payload << std::endl;
-            mqtt::message_ptr pubmsg = mqtt::make_message(topic, payload, qos, false);
-            token = client_.publish(pubmsg, nullptr, *pubListener_);
-        };
-        bool res = common_try(fn, "Publish");
+        bool res = publish(token, topic, payload, qos);
         if (res && wait)
         {
             make_wait(token, wait_for);

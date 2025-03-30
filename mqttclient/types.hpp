@@ -9,10 +9,10 @@
  */
 #ifndef __CORE_MQTT_TYPES__
 #define __CORE_MQTT_TYPES__
-#include "mqtt/exception.h"
-#include <memory>
 #include <string>
+#include <memory>
 #include <type_traits>
+#include "mqtt/exception.h"
 
 namespace mqttcpp
 {
@@ -28,75 +28,73 @@ namespace mqttcpp
     };
 
     /**
-     * @brief Wrapper class to store one of several exception types.
-     *
-     * The ExceptionTrace class encapsulates exceptions of type mqtt::exception,
-     * std::exception, or an unknown exception represented by a std::string. It uses
-     * a union to hold the actual exception data, and an ExceptionType enum to track
-     * which type is currently active.
-     *
-     * This class provides proper copy semantics and ensures that the stored
-     * exception is correctly constructed and destroyed.
-     */
+ * @brief Wrapper class to store one of several exception types.
+ *
+ * The ExceptionTrace class encapsulates exceptions of type mqtt::exception, std::exception, or an
+ * unknown exception represented by a std::string. It uses a union to hold the actual exception data,
+ * and an ExceptionType enum to track which type is currently active.
+ *
+ * This class provides proper copy semantics and ensures that the stored exception is correctly
+ * constructed and destroyed.
+ */
     class ExceptionTrace
     {
     public:
         /**
-         * @brief Default constructor that initializes an empty exception trace.
-         */
+     * @brief Default constructor that initializes an empty exception trace.
+     */
         ExceptionTrace() : type_(ExceptionType::NONE)
         {}
 
         /**
-         * @brief Constructs an ExceptionTrace from a mqtt::exception.
-         * @param ex The mqtt::exception object to store.
-         */
+     * @brief Constructs an ExceptionTrace from a mqtt::exception.
+     * @param ex The mqtt::exception object to store.
+     */
         ExceptionTrace(const mqtt::exception& ex) : type_(ExceptionType::MQTT)
         {
             new (&data_.mqttException) mqtt::exception(ex);
         }
 
         /**
-         * @brief Constructs an ExceptionTrace from a std::exception.
-         * @param ex The std::exception object to store.
-         */
+     * @brief Constructs an ExceptionTrace from a std::exception.
+     * @param ex The std::exception object to store.
+     */
         ExceptionTrace(const std::exception& ex) : type_(ExceptionType::STANDARD)
         {
             new (&data_.standardException) std::exception(ex);
         }
 
         /**
-         * @brief Constructs an ExceptionTrace from a std::string representing an
-         * unknown exception.
-         * @param message The message describing the unknown exception.
-         */
+     * @brief Constructs an ExceptionTrace from a std::string representing an unknown exception.
+     * @param message The message describing the unknown exception.
+     */
         ExceptionTrace(const std::string& message) : type_(ExceptionType::UNKNOWN)
         {
             new (&data_.unknownException) std::string(message);
         }
 
         /**
-         * @brief Destructor that properly destroys the stored exception.
-         */
+     * @brief Destructor that properly destroys the stored exception.
+     */
         ~ExceptionTrace()
         {
             destroy();
         }
 
         /**
-         * @brief Copy constructor.
-         * @param other The ExceptionTrace object to copy from.
-         */
+     * @brief Copy constructor.
+     * @param other The ExceptionTrace object to copy from.
+     */
         ExceptionTrace(const ExceptionTrace& other) : type_(ExceptionType::NONE)
         {
             copyFrom(other);
         }
 
         /**
-         * @brief Assignment operator.
-         * @param other The ExceptionTrace object to assign from.
-         * @return A reference to this ExceptionTrace after assignment.
-         */
+     * @brief Assignment operator.
+     * @param other The ExceptionTrace object to assign from.
+     * @return A reference to this ExceptionTrace after assignment.
+     */
         ExceptionTrace& operator=(const ExceptionTrace& other)
         {
             if (this != &other)
@@ -108,39 +106,36 @@ namespace mqttcpp
         }
 
         /**
-         * @brief Retrieves the type of the stored exception.
-         * @return The ExceptionType representing the active exception type.
-         */
+     * @brief Retrieves the type of the stored exception.
+     * @return The ExceptionType representing the active exception type.
+     */
         ExceptionType getVariant() const
         {
             return type_;
         }
 
         /**
-         * @brief Retrieves the stored mqtt::exception.
-         * @return Pointer to the mqtt::exception if the active type is MQTT;
-         * otherwise, nullptr.
-         */
+     * @brief Retrieves the stored mqtt::exception.
+     * @return Pointer to the mqtt::exception if the active type is MQTT; otherwise, nullptr.
+     */
         const mqtt::exception* getMqttException() const
         {
             return (type_ == ExceptionType::MQTT) ? &data_.mqttException : nullptr;
         }
 
         /**
-         * @brief Retrieves the stored std::exception.
-         * @return Pointer to the std::exception if the active type is STANDARD;
-         * otherwise, nullptr.
-         */
+     * @brief Retrieves the stored std::exception.
+     * @return Pointer to the std::exception if the active type is STANDARD; otherwise, nullptr.
+     */
         const std::exception* getStandardException() const
         {
             return (type_ == ExceptionType::STANDARD) ? &data_.standardException : nullptr;
         }
 
         /**
-         * @brief Retrieves the stored unknown exception message.
-         * @return Pointer to the std::string if the active type is UNKNOWN;
-         * otherwise, nullptr.
-         */
+     * @brief Retrieves the stored unknown exception message.
+     * @return Pointer to the std::string if the active type is UNKNOWN; otherwise, nullptr.
+     */
         const std::string* getUnknownException() const
         {
             return (type_ == ExceptionType::UNKNOWN) ? &data_.unknownException : nullptr;
@@ -148,11 +143,11 @@ namespace mqttcpp
 
     private:
         /**
-         * @brief Destroys the currently stored exception object.
-         *
-         * This method invokes the appropriate destructor based on the current
-         * exception type and resets the type to NONE.
-         */
+     * @brief Destroys the currently stored exception object.
+     *
+     * This method invokes the appropriate destructor based on the current exception type and
+     * resets the type to NONE.
+     */
         void destroy()
         {
             switch (type_)
@@ -173,13 +168,13 @@ namespace mqttcpp
         }
 
         /**
-         * @brief Copies the contents from another ExceptionTrace.
-         *
-         * This method creates a copy of the exception stored in the other
-         * ExceptionTrace instance using placement new.
-         *
-         * @param other The ExceptionTrace object to copy from.
-         */
+     * @brief Copies the contents from another ExceptionTrace.
+     *
+     * This method creates a copy of the exception stored in the other ExceptionTrace instance using
+     * placement new.
+     *
+     * @param other The ExceptionTrace object to copy from.
+     */
         void copyFrom(const ExceptionTrace& other)
         {
             type_ = other.type_;
@@ -202,16 +197,16 @@ namespace mqttcpp
         ExceptionType type_; ///< Indicates the type of exception currently stored.
 
         /**
-         * @brief Union that holds one of the possible exception types.
-         *
-         * This union can store one of the following:
-         * - mqtt::exception for MQTT exceptions.
-         * - std::exception for standard exceptions.
-         * - std::string for unknown exception messages.
-         *
-         * The default constructor and destructor are empty as the management of the
-         * contained object is handled manually.
-         */
+     * @brief Union that holds one of the possible exception types.
+     *
+     * This union can store one of the following:
+     * - mqtt::exception for MQTT exceptions.
+     * - std::exception for standard exceptions.
+     * - std::string for unknown exception messages.
+     *
+     * The default constructor and destructor are empty as the management of the contained object is
+     * handled manually.
+     */
         union ExceptionData
         {
             mqtt::exception mqttException;    ///< Storage for mqtt::exception.
@@ -219,22 +214,22 @@ namespace mqttcpp
             std::string unknownException;     ///< Storage for unknown exception message.
 
             /**
-             * @brief Default constructor for the union. Does nothing.
-             */
+         * @brief Default constructor for the union. Does nothing.
+         */
             ExceptionData()
             {}
 
             /**
-             * @brief Destructor for the union. Actual destruction is managed manually.
-             */
+         * @brief Destructor for the union. Actual destruction is managed manually.
+         */
             ~ExceptionData()
             {}
         } data_;
     };
 
     /**
-     * @brief Shared pointer type for ExceptionTrace.
-     */
+ * @brief Shared pointer type for ExceptionTrace.
+ */
     using exception_trace_ptr = std::shared_ptr<ExceptionTrace>;
 
     /**
@@ -258,7 +253,7 @@ namespace mqttcpp
         MessagePointer,       ///< Holds a mqtt::const_message_ptr.
         DeliveryTokenPointer, ///< Holds a mqtt::delivery_token_ptr.
         DisconnectData,       ///< Holds a disconnect_data.
-        ConnectData,          ///< Holds a connect_data.
+        ConnectData,          ///< Holds a connect_data pointer.
         None                  ///< No value stored.
     };
 
@@ -333,11 +328,11 @@ namespace mqttcpp
         /**
          * @brief Constructor for connect data.
          *
-         * @param disconn_data A connect_data value.
+         * @param conn_data A mqtt::connect_data value.
          */
         CallbackVariant(mqtt::connect_data& conn_data) : type_(VariantType::ConnectData)
         {
-            data_.conn_data = &conn_data;
+            data_.conn_data_ptr = &conn_data;
         }
 
         /**
@@ -419,8 +414,7 @@ namespace mqttcpp
         /**
          * @brief Retrieve stored delivery token pointer.
          *
-         * @exception std::runtime_error if the stored type is not
-         * DeliveryTokenPointer.
+         * @exception std::runtime_error if the stored type is not DeliveryTokenPointer.
          * @return The mqtt::delivery_token_ptr stored in the variant.
          */
         mqtt::delivery_token_ptr asDeliveryToken() const
@@ -458,9 +452,9 @@ namespace mqttcpp
 
         mqtt::connect_data& asConnectData()
         {
-            if (type_ != VariantType::ConnectData)
+            if (type_!= VariantType::ConnectData)
                 throw std::runtime_error("CallbackVariant is not holding a mqtt::connect_data");
-            return *data_.conn_data;
+            return *data_.conn_data_ptr;
         }
 
     private:
@@ -524,7 +518,7 @@ namespace mqttcpp
                 new (&data_.disconn_data) disconnect_data(other.data_.disconn_data);
                 break;
             case VariantType::ConnectData:
-                data_.conn_data = other.data_.conn_data;
+                data_.conn_data_ptr = other.data_.conn_data_ptr;
                 break;
             case VariantType::None:
             default:
@@ -546,7 +540,7 @@ namespace mqttcpp
             mqtt::const_message_ptr mes_ptr;      ///< Holds a message pointer.
             mqtt::delivery_token_ptr del_tok_ptr; ///< Holds a delivery token pointer.
             disconnect_data disconn_data;         ///< Holds disconnect data.
-            mqtt::connect_data* conn_data;        ///< Holds a connect data pointer.
+            mqtt::connect_data* conn_data_ptr;    ///< Holds connect data pointer.
 
             Data()
             {} ///< Default constructor does nothing.
