@@ -37,5 +37,6 @@ jobs:
         uses: lukka/run-cmake@v10
         with:
           configurePreset: "linux-release"
+          configurePresetAdditionalArgs: "['-DENABLE_TESTING=ON']"
           buildPreset: "linux-release"
           testPreset: "linux-release"

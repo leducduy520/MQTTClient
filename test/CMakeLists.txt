@@ -4,33 +4,20 @@
 find_package(GTest REQUIRED)
 
 # Create test executable
-add_executable(mqttclient_tests
-    mqttclient.test.cpp
-)
+add_executable(mqttclient_tests mqttclient.test.cpp)
 
 # Link against the necessary libraries
-target_link_libraries(mqttclient_tests
-    PRIVATE
-    MQTTClient
-    GTest::GTest
-    GTest::Main
-)
+target_link_libraries(mqttclient_tests PRIVATE MQTTClient GTest::GTest GTest::Main)
 
 # Include directories
-target_include_directories(mqttclient_tests
-    PRIVATE
-    ${CMAKE_SOURCE_DIR}/mqttclient
-)
+target_include_directories(mqttclient_tests PRIVATE ${CMAKE_SOURCE_DIR}/mqttclient)
 
 # Add the test to CTest
 include(GoogleTest)
 gtest_discover_tests(mqttclient_tests)
 
 # Set C++ standard
-set_target_properties(mqttclient_tests PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED ON
-)
+set_target_properties(mqttclient_tests PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 
 # Apply compiler warnings
 if(MSVC)

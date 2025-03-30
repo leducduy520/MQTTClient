@@ -11,16 +11,19 @@ const std::string CLIENT_ID{"duyld520"};
 const std::string TOPIC{"hello"};
 
 // Test fixture
-class MqttClientTest : public ::testing::Test {
+class MqttClientTest : public ::testing::Test
+{
 protected:
-    void SetUp() override {
+    void SetUp() override
+    {
         // Create the client with test server and client ID
         auto connOpts =
-        mqtt::connect_options_builder().user_name("duyle").password("552200").automatic_reconnect().finalize();
+            mqtt::connect_options_builder().user_name("duyle").password("552200").automatic_reconnect().finalize();
         client = std::make_unique<MqttClient>(SERVER_ADDRESS, CLIENT_ID, connOpts);
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         client.reset();
     }
 
@@ -28,7 +31,8 @@ protected:
 };
 
 // Test that verifies successful connection with default options
-TEST_F(MqttClientTest, ShouldConnectToBrokerWithDefaultOptions) {
+TEST_F(MqttClientTest, ShouldConnectToBrokerWithDefaultOptions)
+{
     // Arrange
     mqtt::token_ptr token;
 
@@ -47,7 +51,8 @@ TEST_F(MqttClientTest, ShouldConnectToBrokerWithDefaultOptions) {
     EXPECT_TRUE(client->disconnect(false));
 }
 
-TEST_F(MqttClientTest, ShouldSubscribeToTopicWithSpecifiedQoSAndWait) {
+TEST_F(MqttClientTest, ShouldSubscribeToTopicWithSpecifiedQoSAndWait)
+{
     // Arrange
     const std::string testTopic = "test/topic";
     const unsigned int testQos = 1;
