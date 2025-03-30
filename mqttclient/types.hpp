@@ -452,7 +452,7 @@ namespace mqttcpp
 
         mqtt::connect_data& asConnectData()
         {
-            if (type_!= VariantType::ConnectData)
+            if (type_ != VariantType::ConnectData)
                 throw std::runtime_error("CallbackVariant is not holding a mqtt::connect_data");
             return *data_.conn_data_ptr;
         }
