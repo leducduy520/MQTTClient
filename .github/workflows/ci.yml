@@ -38,4 +38,4 @@ jobs:
         with:
           configurePreset: "linux-release"
           buildPreset: "linux-release"
-          buildPresetAdditionalArgs: "['--config Release']"
+          testPreset: "linux-release"

@@ -2,7 +2,8 @@
   "name": "mqttclient",
   "version-string": "0.1.0",
   "dependencies": [
-    "paho-mqttpp3"
+    "paho-mqttpp3",
+    "gtest"
   ],
   "overrides": [
     {

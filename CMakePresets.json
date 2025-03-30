@@ -8,7 +8,8 @@
       "installDir": "${sourceDir}/out/install/${presetName}",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
-        "X_VCPKG_APPLOCAL_DEPS_INSTALL": true
+        "X_VCPKG_APPLOCAL_DEPS_INSTALL": true,
+        "ENABLE_TESTING": true
       }
     },
     {
@@ -135,6 +136,69 @@
       "name": "linux-debug",
       "configurePreset": "linux-debug",
       "configuration": "Debug"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-base",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true,
+        "verbosity": "verbose"
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "x64-debug",
+      "displayName": "x64 Debug Tests",
+      "inherits": "test-base",
+      "configurePreset": "x64-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "x64-asan",
+      "displayName": "x64 Debug Tests with Address Sanitizer",
+      "inherits": "test-base",
+      "configurePreset": "x64-asan",
+      "configuration": "Debug"
+    },
+    {
+      "name": "x64-release",
+      "displayName": "x64 Release Tests",
+      "inherits": "test-base",
+      "configurePreset": "x64-release",
+      "configuration": "Release"
+    },
+    {
+      "name": "x86-debug",
+      "displayName": "x86 Debug Tests",
+      "inherits": "test-base",
+      "configurePreset": "x86-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "x86-release",
+      "displayName": "x86 Release Tests",
+      "inherits": "test-base",
+      "configurePreset": "x86-release",
+      "configuration": "Release"
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux Debug Tests",
+      "inherits": "test-base",
+      "configurePreset": "linux-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release Tests",
+      "inherits": "test-base",
+      "configurePreset": "linux-release",
+      "configuration": "Release"
     }
   ]
 }
