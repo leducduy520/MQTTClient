@@ -38,10 +38,6 @@ jobs:
           docker pull eclipse-mosquitto:latest
           make mosquitto-container
       
-      - name: Wait for Mosquitto to start
-        run: |
-          sleep 5
-      
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         with:
