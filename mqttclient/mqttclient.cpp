@@ -234,7 +234,7 @@ namespace mqttcpp
         : connOpts_(connectOptions), pubListener_(new DefaultActionListener(this)),
           subListener_(new DefaultActionListener(this)), unsubListener_(new DefaultActionListener(this)),
           connListener_(new DefaultActionListener(this)), disconnListener_(new DefaultActionListener(this)),
-          consumeFlag_(false), client_(serverAddress, clientId, createOptions), excPtr_(new ExceptionTrace())
+          consumeFlag_(false), client_(serverAddress, clientId, createOptions, nullptr), excPtr_(new ExceptionTrace())
     {
         set_default_handler();
     }

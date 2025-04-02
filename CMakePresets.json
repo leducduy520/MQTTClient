@@ -6,7 +6,7 @@
       "hidden": true,
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "X_VCPKG_APPLOCAL_DEPS_INSTALL": true,
         "ENABLE_TESTING": true
@@ -35,10 +35,16 @@
       "name": "linux-base",
       "hidden": true,
       "inherits": "base",
+      "generator": "Ninja",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+        "CMAKE_C_COMPILER": "/usr/bin/clang",
+        "CMAKE_MAKE_PROGRAM": "ninja"
       }
     },
     {
