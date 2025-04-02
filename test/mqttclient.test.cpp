@@ -48,7 +48,7 @@ TEST_F(MqttClientTest, ShouldConnectToBrokerWithDefaultOptions)
     EXPECT_TRUE(client->connected());
 
     // Disconnecting should work too
-    EXPECT_TRUE(client->disconnect(false));
+    EXPECT_TRUE(client->disconnect());
 }
 
 TEST_F(MqttClientTest, ShouldSubscribeToTopicWithSpecifiedQoSAndWait)

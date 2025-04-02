@@ -38,9 +38,9 @@ clean-cmake:
 # Step 7: Install CMake (Run all steps)
 install: install-deps download-cmake extract-cmake build-cmake install-cmake clean
 
-run-mosquitto-image:
+mosquitto-container:
 	docker run -d --name mosquitto -p 30520:1883\
-	 -v "$PWD/docker/mosquitto/config:/mosquitto/config"\
-	  -v "$PWD/docker/mosquitto/data:/mosquitto/data"\
-	   -v "$PWD/docker/mosquitto/log:/mosquitto/log"\
+	 -v "$(PWD)/docker/mosquitto/config:/mosquitto/config"\
+	  -v "$(PWD)/docker/mosquitto/data:/mosquitto/data"\
+	   -v "$(PWD)/docker/mosquitto/log:/mosquitto/log"\
 	    eclipse-mosquitto:latest /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf -v
