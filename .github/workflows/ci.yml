@@ -16,8 +16,6 @@ jobs:
         image: eclipse-mosquitto:latest
         volumes:
           - ./docker/mosquitto/config:/mosquitto/config
-          - ./docker/mosquitto/data:/mosquitto/data
-          - ./docker/mosquitto/log:/mosquitto/log
         ports:
           - 30520:1883
         env:
