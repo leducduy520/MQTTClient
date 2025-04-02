@@ -14,18 +14,14 @@ jobs:
     services:
       mosquitto:
         image: eclipse-mosquitto:latest
-        options: >-
-          --name mosquitto
-          -p 30520:1883
-          -v "$(pwd)/docker/mosquitto/config:/mosquitto/config"
-          -v "$(pwd)/docker/mosquitto/data:/mosquitto/data"
-          -v "$(pwd)/docker/mosquitto/log:/mosquitto/log"
+        volumes:
+          - ./docker/mosquitto/config:/mosquitto/config
+          - ./docker/mosquitto/data:/mosquitto/data
+          - ./docker/mosquitto/log:/mosquitto/log
         ports:
           - 30520:1883
         env:
-          - "MOSQUITTO_CONFIG_PATH=/mosquitto/config/mosquitto.conf"
-        # Ensure the container starts in the background and is available for the test
-        entrypoint: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf -v
+          MOSQUITTO_CONFIG_PATH: /mosquitto/config/mosquitto.conf
 
     steps:
       - name: Checkout repository
