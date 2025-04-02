@@ -1,0 +1,38 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find dependencies
+find_dependency(PahoMqttCpp REQUIRED)
+
+# Include targets file
+include("${CMAKE_CURRENT_LIST_DIR}/MQTTClientTargets.cmake")
+
+# # Create imported target MQTTClient::MQTTClient
+# if(NOT TARGET MQTTClient::MQTTClient)
+#     add_library(MQTTClient::MQTTClient INTERFACE IMPORTED)
+#     set_target_properties(MQTTClient::MQTTClient PROPERTIES
+#         INTERFACE_LINK_LIBRARIES MQTTClient
+#     )
+# endif()
+
+# # Check if the library was found
+# if(TARGET MQTTClient)
+#     set(MQTTClient_FOUND TRUE)
+# else()
+#     set(MQTTClient_FOUND FALSE)
+# endif()
+
+# # Print status message
+# if(MQTTClient_FOUND)
+#     if(NOT MQTTClient_FIND_QUIETLY)
+#         message(STATUS "Found MQTTClient: ${CMAKE_CURRENT_LIST_DIR}")
+#     endif()
+# else()
+#     if(MQTTClient_FIND_REQUIRED)
+#         message(FATAL_ERROR "Could not find MQTTClient")
+#     endif()
+# endif()
+
+# Handle components
+check_required_components(MQTTClient)

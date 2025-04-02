@@ -6,7 +6,20 @@
       "hidden": true,
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "X_VCPKG_APPLOCAL_DEPS_INSTALL": true,
+        "ENABLE_TESTING": true
+      }
+    },
+    {
+      "name": "format",
+      "displayName": "Code Formatting",
+      "inherits": "base",
+      "cacheVariables": {
+        "ENABLE_CMAKE_FORMAT": true,
+        "ENABLE_CLANG_FORMAT": true
+      }
     },
     {
       "name": "windows-base",
@@ -22,10 +35,16 @@
       "name": "linux-base",
       "hidden": true,
       "inherits": "base",
+      "generator": "Ninja",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+        "CMAKE_C_COMPILER": "/usr/bin/clang",
+        "CMAKE_MAKE_PROGRAM": "ninja"
       }
     },
     {
@@ -38,6 +57,14 @@
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x64-asan",
+      "displayName": "x64 Debug with Address Sanitizer",
+      "inherits": "x64-debug",
+      "cacheVariables": {
+        "ENABLE_ADDRESS_SANITIZER": true
       }
     },
     {
@@ -88,27 +115,96 @@
   "buildPresets": [
     {
       "name": "x64-debug",
-      "configurePreset": "x64-debug"
+      "configurePreset": "x64-debug",
+      "configuration": "Debug"
     },
     {
       "name": "x64-release",
-      "configurePreset": "x64-release"
+      "configurePreset": "x64-release",
+      "configuration": "Release"
     },
     {
       "name": "x86-debug",
-      "configurePreset": "x86-debug"
+      "configurePreset": "x86-debug",
+      "configuration": "Debug"
     },
     {
       "name": "x86-release",
-      "configurePreset": "x86-release"
+      "configurePreset": "x86-release",
+      "configuration": "Release"
     },
     {
       "name": "linux-release",
-      "configurePreset": "linux-release"
+      "configurePreset": "linux-release",
+      "configuration": "Release"
     },
     {
       "name": "linux-debug",
-      "configurePreset": "linux-debug"
+      "configurePreset": "linux-debug",
+      "configuration": "Debug"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-base",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true,
+        "verbosity": "verbose"
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "x64-debug",
+      "displayName": "x64 Debug Tests",
+      "inherits": "test-base",
+      "configurePreset": "x64-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "x64-asan",
+      "displayName": "x64 Debug Tests with Address Sanitizer",
+      "inherits": "test-base",
+      "configurePreset": "x64-asan",
+      "configuration": "Debug"
+    },
+    {
+      "name": "x64-release",
+      "displayName": "x64 Release Tests",
+      "inherits": "test-base",
+      "configurePreset": "x64-release",
+      "configuration": "Release"
+    },
+    {
+      "name": "x86-debug",
+      "displayName": "x86 Debug Tests",
+      "inherits": "test-base",
+      "configurePreset": "x86-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "x86-release",
+      "displayName": "x86 Release Tests",
+      "inherits": "test-base",
+      "configurePreset": "x86-release",
+      "configuration": "Release"
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux Debug Tests",
+      "inherits": "test-base",
+      "configurePreset": "linux-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release Tests",
+      "inherits": "test-base",
+      "configurePreset": "linux-release",
+      "configuration": "Release"
     }
   ]
 }

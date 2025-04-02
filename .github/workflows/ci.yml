@@ -33,9 +33,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cmake-
 
+      - name: Start Mosquitto container
+        run: |
+          docker pull eclipse-mosquitto:latest
+          make mosquitto-container
+      
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         with:
           configurePreset: "linux-release"
+          configurePresetAdditionalArgs: "['-DENABLE_TESTING=ON']"
           buildPreset: "linux-release"
-          buildPresetAdditionalArgs: "['--config Release']"
+          testPreset: "linux-release"
