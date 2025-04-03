@@ -1,3 +1,5 @@
+project(mqttclient VERSION 0.1.0)
+
 # Find required dependencies
 find_package(PahoMqttCpp CONFIG REQUIRED)
 
@@ -48,9 +50,9 @@ target_precompile_headers(
 install(
     TARGETS MQTTClient
     EXPORT MQTTClientTargets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Runtime
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Development
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
@@ -58,6 +60,7 @@ install(
 # Install header files
 install(FILES "mqttclient.hpp" "monitor.hpp"
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+        COMPONENT Development
         )
 
 # Export targets
@@ -87,6 +90,7 @@ write_basic_package_version_file(
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/MQTTClientConfig.cmake"
               "${CMAKE_CURRENT_BINARY_DIR}/MQTTClientConfigVersion.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/MQTTClient
+        COMPONENT Development
         )
 
 set(CPACK_PACKAGE_NAME "CPP-MQTTClient")

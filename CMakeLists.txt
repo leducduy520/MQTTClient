@@ -162,3 +162,15 @@ if(ENABLE_TESTING)
     enable_testing()
     add_subdirectory("test")
 endif(ENABLE_TESTING)
+
+set(CPACK_PACKAGE_NAME "CPP-MQTTClient")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_DESCRIPTION "SDK for using mqtt in more convenient way")
+set(CPACK_PACKAGE_VENDOR "Le Duc Duy")
+set(CPACK_PACKAGE_CONTACT "duyld520@email.com")
+set(CPACK_GENERATOR "ZIP;TGZ")
+set(CPACK_INSTALL_CMAKE_PROJECTS
+    "mqttclient;mqttclient;Development;/"
+)
+
+include(CPack)
