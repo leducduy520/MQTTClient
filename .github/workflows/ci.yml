@@ -45,3 +45,10 @@ jobs:
           configurePresetAdditionalArgs: "['-DENABLE_TESTING=ON']"
           buildPreset: "linux-release"
           testPreset: "linux-release"
+          packagePreset: "linux-release"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: out/build/linux-release/CPP-MQTTClient*

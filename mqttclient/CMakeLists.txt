@@ -88,3 +88,12 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/MQTTClientConfig.cmake"
               "${CMAKE_CURRENT_BINARY_DIR}/MQTTClientConfigVersion.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/MQTTClient
         )
+
+set(CPACK_PACKAGE_NAME "CPP-MQTTClient")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_DESCRIPTION "SDK for using mqtt in more convenient way")
+set(CPACK_PACKAGE_VENDOR "Le Duc Duy")
+set(CPACK_PACKAGE_CONTACT "duyld520@email.com")
+set(CPACK_GENERATOR "ZIP;TGZ")
+
+include(CPack)
