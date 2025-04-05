@@ -32,17 +32,70 @@ MQTTClient is a C++ project that provides an MQTT client using the Paho MQTT C++
     cmake --build build
     ```
 
-### Running the Application
+### Testing the Project
 
-After building the project, you can run the application:
+This project supports unit testing using Google Test (GTest). The tests involve connecting to an MQTT broker, so a running MQTT broker (e.g., Mosquitto) is required for the tests to pass. If no broker is running, the tests will fail.
 
-```sh
-./build/app/app
-```
+#### Configuration Options for Testing
+
+The broker configuration (server address, client ID, and topic) can be provided in three ways, in the following priority order:
+
+1. **Command-Line Arguments**:
+    - `--server=<broker_address>`: Specify the MQTT broker address (e.g., `tcp://localhost:1883`).
+    - `--client_id=<client_id>`: Specify the client ID.
+    - `--topic=<topic>`: Specify the topic to subscribe to.
+
+    Example:
+    ```sh
+    ./build/test/mqttclient.test --server=tcp://test.mosquitto.org:1883 --client_id=testClient --topic=test/topic
+    ```
+
+2. **Environment Variables**:
+    - `MQTT_SERVER`: Specify the MQTT broker address.
+    - `MQTT_CLIENT_ID`: Specify the client ID.
+    - `MQTT_TOPIC`: Specify the topic to subscribe to.
+
+    Example:
+    ```sh
+    export MQTT_SERVER="tcp://test.mosquitto.org:1883"
+    export MQTT_CLIENT_ID="testClient"
+    export MQTT_TOPIC="test/topic"
+    ./build/test/mqttclient.test
+    ```
+
+3. **Default Values**:
+    If neither command-line arguments nor environment variables are provided, the following default values will be used:
+    - `SERVER_ADDRESS = "tcp://localhost:1883"`
+    - `CLIENT_ID = "tesing_client_id"`
+    - `TOPIC = "test"`
+
+#### Steps to Run the Tests:
+
+1. **Start an MQTT Broker**: Ensure that a Mosquitto MQTT broker is running locally or accessible over the network. You can start a Mosquitto broker locally using the following command:
+
+    ```sh
+    mosquitto
+    ```
+
+    By default, the broker will run on `localhost` and listen on port `1883`.
+
+2. **Enable Testing**: Ensure the `ENABLE_TESTING` option is enabled in the `CMakePresets.json` file or pass it as a CMake argument:
+
+    ```sh
+    cmake -B build -S . -DENABLE_TESTING=ON
+    cmake --build build
+    ```
+
+3. **Run the Tests**: Use the test executable with the desired configuration (command-line arguments, environment variables, or defaults).
+
+    Example:
+    ```sh
+    ./build/test/mqttclient.test --server=tcp://test.mosquitto.org:1883 --client_id=testClient --topic=test/topic
+    ```
 
 ### Project Options
 
-The project provides several options that can be enabled or disabled in the CMakeLists.txt file:
+The project provides several options that can be enabled or disabled in the `CMakeLists.txt` file:
 
 - **BUILD_SHARED_LIBS**: Build shared libraries (default: **ON**)
 - **ENABLE_CMAKE_FORMAT**: Enable CMake Format (default: **ON**)
@@ -53,6 +106,30 @@ The project provides several options that can be enabled or disabled in the CMak
 - **ENABLE_LEAK_SANITIZER**: Enable Leak Sanitizer (default: **OFF**)
 - **ENABLE_THREAD_SANITIZER**: Enable Thread Sanitizer (default: **OFF**)
 - **ENABLE_LTO**: Enable Link Time Optimization (default: **OFF**)
+
+## Contributing
+
+We welcome contributions to improve MQTTClient! Here are some ways you can contribute:
+
+- **Bug Reports**: Found a bug? Open an issue and provide as much detail as possible.
+- **Feature Requests**: Have an idea for a new feature? Let us know by opening an issue.
+- **Code Contributions**: Submit a pull request with your improvements or fixes. Make sure to follow the project's coding style and include tests for your changes.
+- **Documentation**: Help us improve the documentation by fixing typos, adding examples, or clarifying instructions.
+
+### How to Contribute
+
+1. Fork the repository and create a new branch for your changes.
+2. Make your changes and commit them with clear and concise messages.
+3. Push your branch to your fork and submit a pull request.
+
+### Areas to Contribute
+
+- **Testing**: Add more test cases to improve coverage.
+- **Features**: Implement additional MQTT features like QoS handling, retained messages, or advanced connection options.
+- **Performance**: Optimize the client for better performance in high-load scenarios.
+- **Documentation**: Add examples, tutorials, or improve the existing documentation.
+
+We appreciate your contributions and look forward to collaborating with you!
 
 ## License
 
