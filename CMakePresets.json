@@ -206,5 +206,72 @@
       "configurePreset": "linux-release",
       "configuration": "Release"
     }
+  ],
+  "packagePresets": [
+    {
+      "name": "package-base",
+      "hidden": true,
+      "configurePreset": "base"
+    },
+    {
+      "name": "x64-release",
+      "displayName": "x64 Release Package",
+      "inherits": "package-base",
+      "configurePreset": "x64-release",
+      "configurations": ["Release"]
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release Package",
+      "inherits": "package-base",
+      "configurePreset": "linux-release",
+      "configurations": ["Release"]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "deloy-linux",
+      "description": "Linux deployment workflow",
+      "steps": [
+        {
+          "name": "linux-release",
+          "type": "configure"
+        },
+        {
+          "name": "linux-release",
+          "type": "build"
+        },
+        {
+          "name": "linux-release",
+          "type": "test"
+        },
+        {
+          "name": "linux-release",
+          "type": "package"
+        }
+      ]
+    },
+    {
+      "name": "deploy-x64",
+      "description": "Windows deployment workflow",
+      "steps": [
+        {
+          "name": "x64-release",
+          "type": "configure"
+        },
+        {
+          "name": "x64-release",
+          "type": "build"
+        },
+        {
+          "name": "x64-release",
+          "type": "test"
+        },
+        {
+          "name": "x64-release",
+          "type": "package"
+        }
+      ]
+    }
   ]
 }

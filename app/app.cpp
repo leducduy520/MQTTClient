@@ -1,7 +1,7 @@
 ﻿#include "mqttclient.hpp"
 #include <sstream>
 
-const std::string SERVER_ADDRESS{"tcp://localhost:30520"};
+const std::string SERVER_ADDRESS{"tcp://localhost:1883"};
 const std::string CLIENT_ID{"duyld520"};
 const std::string TOPIC{"hello"};
 
@@ -70,7 +70,6 @@ void main_event_handle(mqttcpp::CallbackEvent event, mqttcpp::CallbackVariant in
     case CallbackEvent::EVENT_CONNECTION_UPDATE:
     {
         auto* data = &info.asConnectData();
-        data->set_password("552200");
     }
     default:
         break;
@@ -82,7 +81,7 @@ int main()
     using namespace mqttcpp;
     auto client = mqttcpp::MqttClient::Instance.get();
     auto connOpts =
-        mqtt::connect_options_builder().user_name("duyle").password("5522001").automatic_reconnect().finalize();
+        mqtt::connect_options_builder().automatic_reconnect().finalize();
     client = new mqttcpp::MqttClient(SERVER_ADDRESS, CLIENT_ID, connOpts);
     client->set_event_handler(main_event_handle);
     if (!client->connect(true, 5))

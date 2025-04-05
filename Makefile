@@ -39,8 +39,5 @@ clean-cmake:
 install: install-deps download-cmake extract-cmake build-cmake install-cmake clean
 
 mosquitto-container:
-	docker run -d --name mosquitto -p 30520:1883\
-	 -v "$(PWD)/docker/mosquitto/config:/mosquitto/config"\
-	  -v "$(PWD)/docker/mosquitto/data:/mosquitto/data"\
-	   -v "$(PWD)/docker/mosquitto/log:/mosquitto/log"\
-	    eclipse-mosquitto:latest /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf -v
+	docker run -d --name mosquitto -p 1883:1883\
+	    eclipse-mosquitto:latest
