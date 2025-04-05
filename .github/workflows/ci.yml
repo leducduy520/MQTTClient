@@ -35,12 +35,14 @@ jobs:
       
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
+        env:
+          MQTT_SERVER: "broker.emqx.io"
         with:
           configurePreset: "linux-release"
           configurePresetAdditionalArgs: "['-DENABLE_TESTING=ON']"
           buildPreset: "linux-release"
           testPreset: "linux-release"
-          testPresetAdditionalArgs: "['--output-on-failure', '--server=broker.emqx.io:1883']"
+          testPresetAdditionalArgs: "['--output-on-failure']"
           packagePreset: "linux-release"
 
       - name: Upload artifact
