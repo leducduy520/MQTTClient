@@ -32,11 +32,6 @@ jobs:
           key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
           restore-keys: |
             ${{ runner.os }}-cmake-
-
-      - name: Start Mosquitto container
-        run: |
-          docker pull eclipse-mosquitto:latest
-          make mosquitto-container
       
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
@@ -45,6 +40,7 @@ jobs:
           configurePresetAdditionalArgs: "['-DENABLE_TESTING=ON']"
           buildPreset: "linux-release"
           testPreset: "linux-release"
+          testPresetAdditionalArgs: "['--output-on-failure', '--server=broker.emqx.io:1883']"
           packagePreset: "linux-release"
 
       - name: Upload artifact
