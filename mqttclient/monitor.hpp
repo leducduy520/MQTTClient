@@ -236,7 +236,7 @@ namespace ddbg
          *
          * @param data A ddbg::end structure indicating the termination of the log output.
          */
-        void operator<<(struct ddbg::end data)
+        void operator<<([[maybe_unused]] struct ddbg::end data)
         {
             this->print();
         }
@@ -246,7 +246,7 @@ namespace ddbg
          *
          * @param data A ddbg::endl structure indicating a newline and termination of the log output.
          */
-        void operator<<(struct ddbg::endl data)
+        void operator<<([[maybe_unused]] struct ddbg::endl data)
         {
             this->endl();
             this->print();

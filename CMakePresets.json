@@ -6,7 +6,7 @@
       "hidden": true,
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "toolchainFile": "vcpkg/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "X_VCPKG_APPLOCAL_DEPS_INSTALL": true,
         "ENABLE_TESTING": true

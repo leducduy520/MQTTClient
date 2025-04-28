@@ -53,11 +53,14 @@ option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(ENABLE_CMAKE_FORMAT "Enable CMake Format" OFF)
 option(ENABLE_CLANG_FORMAT "Enable Clang Format" OFF)
 option(ENABLE_TESTING "Enable unit tests with GoogleTest" OFF)
+
+# Define sanitizer options
+option(ENABLE_SANITIZERS "Enable all sanitizers" OFF)
 option(ENABLE_ADDRESS_SANITIZER "Enable Address Sanitizer" OFF)
-option(ENABLE_UNDEFINED_SANITIZER "Enable Undefined Sanitizer" OFF)
+option(ENABLE_UNDEFINED_SANITIZER "Enable Undefined Behavior Sanitizer" OFF)
 option(ENABLE_LEAK_SANITIZER "Enable Leak Sanitizer" OFF)
 option(ENABLE_THREAD_SANITIZER "Enable Thread Sanitizer" OFF)
-option(ENABLE_LTO "Enable Link Time Optimization" OFF)
+option(ENABLE_MEMORY_SANITIZER "Enable Memory Sanitizer" OFF)
 
 # Generate position-independent code (-fPIC on UNIX)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -92,53 +95,8 @@ if(ENABLE_CMAKE_FORMAT OR ENABLE_CLANG_FORMAT)
     endif()
 endif()
 
-# Enable sanitizers if specified
-if(ENABLE_ADDRESS_SANITIZER
-   OR ENABLE_UNDEFINED_SANITIZER
-   OR ENABLE_LEAK_SANITIZER
-   OR ENABLE_THREAD_SANITIZER
-   )
-    if(ENABLE_ADDRESS_SANITIZER AND MSVC)
-        message(STATUS "AddressSanitizer enabled for MSVC")
-
-        # Check for incompatible runtime library
-        if(CMAKE_MSVC_RUNTIME_LIBRARY MATCHES "MultiThreadedDebug")
-            message(
-                FATAL_ERROR
-                    "ASan does not support /MDd or /MTd (Debug runtime). Please use /MD or /MT instead."
-                )
-        endif()
-
-        # Check for /ZI (Edit and Continue)
-        if(CMAKE_CXX_FLAGS MATCHES "/ZI")
-            message(FATAL_ERROR "ASan does not support /ZI (Edit and Continue). Use /Zi instead.")
-        endif()
-
-        # Check for /LTCG or /GL (Link-Time Code Generation)
-        if(CMAKE_CXX_FLAGS MATCHES "/LTCG" OR CMAKE_CXX_FLAGS MATCHES "/GL")
-            message(
-                FATAL_ERROR
-                    "ASan does not support /LTCG or /GL. Remove them from your configuration."
-                )
-        endif()
-
-        # Check for security checks that interfere with ASan
-        if(CMAKE_CXX_FLAGS MATCHES "/GS" OR CMAKE_CXX_FLAGS MATCHES "/RTC")
-            message(
-                FATAL_ERROR
-                    "ASan does not support /GS (Buffer Security Check) or /RTC (Runtime Check). Please remove them."
-                )
-        endif()
-
-        # Set the MSVC debug information format to ProgramDatabase to avoid conflicts with ASan
-        set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "ProgramDatabase")
-
-        # Ensure incremental linking is disabled (required for ASan)
-        add_link_options("/INCREMENTAL:NO")
-    endif()
-
-    include(Sanitizer)
-endif()
+# Apply sanitizer flags
+include(Sanitizer)
 
 # Enable compiler warnings
 include(Warnings)

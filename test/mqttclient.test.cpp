@@ -1,22 +1,22 @@
 #include "mqttclient.hpp"
 #include <gtest/gtest.h>
 #include <memory>
+#include <chrono>
+#include <thread>
+#include <future>
 #include <string>
+#include <cstdlib>
 
 using namespace mqtt;
 using namespace mqttcpp;
 
-// Default values for broker configuration
-std::string SERVER_ADDRESS = "tcp://localhost:1883";
-std::string CLIENT_ID = "tesing_client_id";
-std::string TOPIC = "test";
-
-// Helper function to get environment variable or default value
-std::string getEnvOrDefault(const char* envVar, const std::string& defaultValue)
-{
-    const char* value = std::getenv(envVar);
-    return value ? std::string(value) : defaultValue;
-}
+const std::string SERVER_ADDRESS{std::getenv("MQTT_SERVER_ADDRESS") ? std::getenv("MQTT_SERVER_ADDRESS") : "tcp://localhost:30520"};
+const std::string CLIENT_ID{"test_client"};
+const std::string TOPIC{"test/topic"};
+const std::string USERNAME{"duyle"};
+const std::string PASSWORD{"552200"};
+const int QOS = 1;
+const int TIMEOUT_MS = 4000;
 
 // Test fixture
 class MqttClientTest : public ::testing::Test
@@ -25,19 +25,29 @@ protected:
     void SetUp() override
     {
         // Create the client with test server and client ID
-        auto connOpts = mqtt::connect_options_builder().automatic_reconnect().finalize();
+        auto connOpts = mqtt::connect_options_builder()
+                           .user_name(USERNAME)
+                           .password(PASSWORD)
+                           .automatic_reconnect()
+                           .keep_alive_interval(std::chrono::seconds(30))
+                           .clean_session(true)
+                           .finalize();
         client = std::make_unique<MqttClient>(SERVER_ADDRESS, CLIENT_ID, connOpts);
     }
 
     void TearDown() override
     {
+        if (client && client->connected())
+        {
+            client->disconnect(true);
+        }
         client.reset();
     }
 
     std::unique_ptr<MqttClient> client;
 };
 
-// Test that verifies successful connection with default options
+// Connection Tests
 TEST_F(MqttClientTest, ShouldConnectToBrokerWithDefaultOptions)
 {
     // Arrange
@@ -45,102 +55,234 @@ TEST_F(MqttClientTest, ShouldConnectToBrokerWithDefaultOptions)
 
     // Act
     bool result = client->connect(token);
-    EXPECT_TRUE(result);
     token->wait();
 
     // Assert
+    EXPECT_TRUE(result);
     EXPECT_TRUE(token != nullptr);
-
-    // Verify connected state
     EXPECT_TRUE(client->connected());
-
-    // Disconnecting should work too
-    EXPECT_TRUE(client->disconnect());
 }
 
-// Test that verifies subscription and unsubscription to a topic
-TEST_F(MqttClientTest, ShouldSubscribeToTopicWithSpecifiedQoSAndWait)
+// Event Handler Tests
+TEST_F(MqttClientTest, ShouldHandleConnectionEvents)
 {
     // Arrange
-    const std::string testTopic = "test/topic";
-    const unsigned int testQos = 1;
-    mqtt::token_ptr token;
+    std::promise<CallbackEvent> eventPromise;
+    auto eventFuture = eventPromise.get_future();
+    bool eventReceived = false;
 
-    // Connect to the broker
+    client->set_event_handler([&eventPromise, &eventReceived](CallbackEvent event, CallbackVariant info) {
+        if (event == CallbackEvent::EVENT_CONNECTED)
+        {
+            eventReceived = true;
+            eventPromise.set_value(event);
+        }
+    });
+
+    // Act
+    mqtt::token_ptr token;
     bool result = client->connect(token);
-    EXPECT_TRUE(result);
     token->wait();
 
-    // Act: Subscribe to the topic
-    result = client->subscribe(token, testTopic, testQos);
+    // Assert
     EXPECT_TRUE(result);
+    EXPECT_TRUE(client->connected());
+    auto status = eventFuture.wait_for(std::chrono::milliseconds(TIMEOUT_MS));
+    EXPECT_EQ(status, std::future_status::ready);
+    EXPECT_TRUE(eventReceived);
+}
+
+// Subscription Tests
+TEST_F(MqttClientTest, ShouldSubscribeToTopicWithSpecifiedQoS)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+
+    // Act
+    bool result = client->subscribe(token, TOPIC, QOS);
+    token->wait();
+
+    // Assert
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(token != nullptr);
+}
+
+TEST_F(MqttClientTest, ShouldSubscribeToTopicWithWait)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+
+    // Act
+    bool result = client->subscribe(TOPIC, QOS, true, TIMEOUT_MS);
+
+    // Assert
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MqttClientTest, ShouldUnsubscribeFromTopic)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+    ASSERT_TRUE(client->subscribe(token, TOPIC, QOS));
+    token->wait();
+
+    // Act
+    bool result = client->unsubscribe(TOPIC, true);
+
+    // Assert
+    EXPECT_TRUE(result);
+}
+
+// Publishing Tests
+TEST_F(MqttClientTest, ShouldPublishMessageToTopic)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+    const std::string payload = "test message";
+
+    // Act
+    bool result = client->publish(token, TOPIC, payload, QOS);
     token->wait();
 
     // Assert: Verify subscription was successful
     EXPECT_TRUE(result);
     EXPECT_TRUE(token != nullptr);
-
-    // Test the overloaded version with wait parameter
-    bool subscribeWithWaitResult = client->subscribe(testTopic, testQos, true, 1000);
-    EXPECT_TRUE(subscribeWithWaitResult);
-
-    // Act: Unsubscribe from the topic
-    result = client->unsubscribe(testTopic, true);
-    EXPECT_TRUE(result);
-
-    // Assert: Verify unsubscription was successful
-    EXPECT_TRUE(client->connected());
-
-    // Disconnect from the broker
-    EXPECT_TRUE(client->disconnect());
 }
 
-// Main function to parse command-line arguments and run tests
-int main(int argc, char** argv)
+TEST_F(MqttClientTest, ShouldPublishMessageWithWait)
 {
-    // Default values for broker configuration
-    std::string server_address, client_id, topic;
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+    const std::string payload = "test message";
 
-    // Parse command-line arguments for broker configuration
-    for (int i = 1; i < argc; ++i)
-    {
-        std::string arg = argv[i];
-        if (arg.find("--server=") == 0)
+    // Act
+    bool result = client->publish(TOPIC, payload, QOS, true, TIMEOUT_MS);
+
+    // Assert
+    EXPECT_TRUE(result);
+}
+
+// Message Reception Tests
+TEST_F(MqttClientTest, ShouldReceivePublishedMessage)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+    ASSERT_TRUE(client->subscribe(token, TOPIC, QOS));
+    token->wait();
+
+    const std::string payload = "test message";
+    std::promise<std::string> messagePromise;
+    auto messageFuture = messagePromise.get_future();
+
+    // Set up message callback
+    client->set_event_handler([&messagePromise](CallbackEvent event, CallbackVariant info) {
+        if (event == CallbackEvent::EVENT_MESSAGE_ARRIVED)
         {
-            server_address = arg.substr(9);
+            auto msg = info.asMessage();
+            if (msg)
+            {
+                messagePromise.set_value(msg->get_payload_str());
+            }
         }
-        else if (arg.find("--client_id=") == 0)
-        {
-            client_id = arg.substr(12);
-        }
-        else if (arg.find("--topic=") == 0)
-        {
-            topic = arg.substr(8);
-        }
-    }
+    });
 
-    // If not provided, use environment variables or default values
-    if (server_address.empty())
-    {
-        server_address = getEnvOrDefault("MQTT_SERVER", SERVER_ADDRESS);
-    }
-    if (client_id.empty())
-    {
-        client_id = getEnvOrDefault("MQTT_CLIENT_ID", CLIENT_ID);
-    }
-    if (topic.empty())
-    {
-        topic = getEnvOrDefault("MQTT_TOPIC", TOPIC);
-    }
+    // Act
+    ASSERT_TRUE(client->publish(TOPIC, payload, QOS, true));
+    
+    // Wait for message with timeout
+    auto status = messageFuture.wait_for(std::chrono::milliseconds(TIMEOUT_MS));
 
-    // Set the server address, client ID, and topic for the tests
-    SERVER_ADDRESS = server_address;
-    CLIENT_ID = client_id;
-    TOPIC = topic;
+    // Assert
+    EXPECT_EQ(status, std::future_status::ready);
+    EXPECT_EQ(messageFuture.get(), payload);
+}
 
-    // Initialize Google Test framework
-    ::testing::InitGoogleTest(&argc, argv);
+// Connection State Tests
+TEST_F(MqttClientTest, ShouldHandleDisconnection)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
 
-    // Run all tests
-    return RUN_ALL_TESTS();
+    // Act
+    bool result = client->disconnect(true);
+
+    // Assert
+    EXPECT_TRUE(result);
+    EXPECT_FALSE(client->connected());
+}
+
+TEST_F(MqttClientTest, ShouldHandleReconnection)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+    ASSERT_TRUE(client->disconnect(true));
+
+    // Act
+    bool result = client->connect(token);
+    token->wait();
+
+    // Assert
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(client->connected());
+}
+
+TEST_F(MqttClientTest, ShouldHandleInvalidQoS)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+    const int invalidQoS = 3;  // QoS can only be 0, 1, or 2
+
+    // Act
+    bool result = client->subscribe(token, TOPIC, invalidQoS);
+    token->wait();
+
+    // Assert
+    EXPECT_FALSE(result);
+}
+
+// Message Consumption Tests
+TEST_F(MqttClientTest, ShouldHandleMessageConsumption)
+{
+    // Arrange
+    mqtt::token_ptr token;
+    ASSERT_TRUE(client->connect(token));
+    token->wait();
+    ASSERT_TRUE(client->subscribe(token, TOPIC, QOS));
+    token->wait();
+
+    // Act
+    bool result = client->start_saving_message();
+    ASSERT_TRUE(result);
+    ASSERT_TRUE(client->is_saving_message());
+
+    // Publish a message
+    const std::string payload = "test message";
+    ASSERT_TRUE(client->publish(TOPIC, payload, QOS, true));
+
+    // Try to consume the message
+    mqtt::binary msg;
+    result = client->get_next_message(msg);
+
+    // Assert
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(client->stop_saving_message());
+    EXPECT_FALSE(client->is_saving_message());
 }

@@ -1,7 +1,10 @@
 ﻿#include "mqttclient.hpp"
 #include <sstream>
+#include <memory>
 
-const std::string SERVER_ADDRESS{"tcp://localhost:1883"};
+const unsigned int QOS = 1;
+const auto TIMEOUT = std::chrono::seconds(5);
+const std::string SERVER_ADDRESS{"tcp://localhost:30520"};
 const std::string CLIENT_ID{"duyld520"};
 const std::string TOPIC{"hello"};
 

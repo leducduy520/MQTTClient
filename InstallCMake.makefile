@@ -35,9 +35,8 @@ install-cmake:
 clean-cmake:
 	cd .. && rm -rf $(CMAKE_TAR) $(CMAKE_DIR)
 
+version:
+	cmake --version
+
 # Step 7: Install CMake (Run all steps)
 install: install-deps download-cmake extract-cmake build-cmake install-cmake clean
-
-mosquitto-container:
-	docker run -d --name mosquitto -p 1883:1883\
-	    eclipse-mosquitto:latest

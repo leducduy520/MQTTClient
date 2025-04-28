@@ -278,7 +278,7 @@ namespace mqttcpp
     {
         std::function<void()> fn = [this, &token]() mutable {
             dinfo1("[MqttClient] Disconnecting...") << std::endl;
-            token = client_.disconnect(TIMEOUT, nullptr, *disconnListener_);
+            token = client_.disconnect(10000, nullptr, *disconnListener_);
         };
         return common_try(fn, "Disconnect");
     }
@@ -365,6 +365,11 @@ namespace mqttcpp
             make_wait(token, wait_for);
         }
         return res;
+    }
+
+    bool MqttClient::connected()
+    {
+        return client_.is_connected();
     }
 
     bool MqttClient::consume_message(bool allow)

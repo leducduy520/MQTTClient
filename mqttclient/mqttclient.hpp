@@ -8,10 +8,6 @@
 #include "mqtt/async_client.h"
 #include "types.hpp"
 
-const unsigned int QOS = 1;
-const auto TIMEOUT = std::chrono::seconds(5);
-const size_t MAX_MESSAGE_STACK_SIZE = 1024;
-
 namespace mqttcpp
 {
     enum class CallbackEvent
@@ -238,7 +234,7 @@ namespace mqttcpp
          *
          * @return true if no error occurs; false otherwise.
          */
-        bool subscribe(const std::string& topic, unsigned int qos = QOS, bool wait = true, unsigned int wait_for = 0);
+        bool subscribe(const std::string& topic, unsigned int qos =  1, bool wait = true, unsigned int wait_for = 0);
 
         /**
          * @brief Unsubscribes from a given MQTT topic.
@@ -276,7 +272,7 @@ namespace mqttcpp
         bool publish(mqtt::token_ptr& token,
                      const std::string& topic,
                      const std::string& payload,
-                     unsigned int qos = QOS);
+                     unsigned int qos =  1);
 
         /**
          * @brief Publishes a message to an MQTT topic.
@@ -296,7 +292,7 @@ namespace mqttcpp
          */
         bool publish(const std::string& topic,
                      const std::string& payload,
-                     unsigned int qos = QOS,
+                     unsigned int qos =  1,
                      bool wait = true,
                      unsigned int wait_for = 0);
 
@@ -317,10 +313,7 @@ namespace mqttcpp
          *
          * @return True if the client is connected; false if it is not.
          */
-        inline bool connected() const
-        {
-            return client_.is_connected();
-        }
+        bool connected();
 
         /**
          * @brief Reconnects the MQTT client
