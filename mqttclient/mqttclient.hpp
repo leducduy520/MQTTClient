@@ -234,7 +234,7 @@ namespace mqttcpp
          *
          * @return true if no error occurs; false otherwise.
          */
-        bool subscribe(const std::string& topic, unsigned int qos =  1, bool wait = true, unsigned int wait_for = 0);
+        bool subscribe(const std::string& topic, unsigned int qos = 1, bool wait = true, unsigned int wait_for = 0);
 
         /**
          * @brief Unsubscribes from a given MQTT topic.
@@ -272,7 +272,7 @@ namespace mqttcpp
         bool publish(mqtt::token_ptr& token,
                      const std::string& topic,
                      const std::string& payload,
-                     unsigned int qos =  1);
+                     unsigned int qos = 1);
 
         /**
          * @brief Publishes a message to an MQTT topic.
@@ -292,7 +292,7 @@ namespace mqttcpp
          */
         bool publish(const std::string& topic,
                      const std::string& payload,
-                     unsigned int qos =  1,
+                     unsigned int qos = 1,
                      bool wait = true,
                      unsigned int wait_for = 0);
 

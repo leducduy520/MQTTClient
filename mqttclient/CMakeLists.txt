@@ -58,10 +58,11 @@ install(
     )
 
 # Install header files
-install(FILES "mqttclient.hpp" "monitor.hpp"
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-        COMPONENT Development
-        )
+install(
+    FILES "mqttclient.hpp" "monitor.hpp"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+    COMPONENT Development
+    )
 
 # Export targets
 install(
@@ -87,11 +88,12 @@ write_basic_package_version_file(
     )
 
 # Install config files
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/MQTTClientConfig.cmake"
-              "${CMAKE_CURRENT_BINARY_DIR}/MQTTClientConfigVersion.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/MQTTClient
-        COMPONENT Development
-        )
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/MQTTClientConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/MQTTClientConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/MQTTClient
+    COMPONENT Development
+    )
 
 set(CPACK_PACKAGE_NAME "CPP-MQTTClient")
 set(CPACK_PACKAGE_VERSION "1.0.0")

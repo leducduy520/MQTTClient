@@ -10,7 +10,8 @@
 using namespace mqtt;
 using namespace mqttcpp;
 
-const std::string SERVER_ADDRESS{std::getenv("MQTT_SERVER_ADDRESS") ? std::getenv("MQTT_SERVER_ADDRESS") : "tcp://localhost:30520"};
+const std::string SERVER_ADDRESS{std::getenv("MQTT_SERVER_ADDRESS") ? std::getenv("MQTT_SERVER_ADDRESS")
+                                                                    : "tcp://localhost:30520"};
 const std::string CLIENT_ID{"test_client"};
 const std::string TOPIC{"test/topic"};
 const std::string USERNAME{"duyle"};
@@ -26,12 +27,12 @@ protected:
     {
         // Create the client with test server and client ID
         auto connOpts = mqtt::connect_options_builder()
-                           .user_name(USERNAME)
-                           .password(PASSWORD)
-                           .automatic_reconnect()
-                           .keep_alive_interval(std::chrono::seconds(30))
-                           .clean_session(true)
-                           .finalize();
+                            .user_name(USERNAME)
+                            .password(PASSWORD)
+                            .automatic_reconnect()
+                            .keep_alive_interval(std::chrono::seconds(30))
+                            .clean_session(true)
+                            .finalize();
         client = std::make_unique<MqttClient>(SERVER_ADDRESS, CLIENT_ID, connOpts);
     }
 
@@ -200,7 +201,7 @@ TEST_F(MqttClientTest, ShouldReceivePublishedMessage)
 
     // Act
     ASSERT_TRUE(client->publish(TOPIC, payload, QOS, true));
-    
+
     // Wait for message with timeout
     auto status = messageFuture.wait_for(std::chrono::milliseconds(TIMEOUT_MS));
 
@@ -248,7 +249,7 @@ TEST_F(MqttClientTest, ShouldHandleInvalidQoS)
     mqtt::token_ptr token;
     ASSERT_TRUE(client->connect(token));
     token->wait();
-    const int invalidQoS = 3;  // QoS can only be 0, 1, or 2
+    const int invalidQoS = 3; // QoS can only be 0, 1, or 2
 
     // Act
     bool result = client->subscribe(token, TOPIC, invalidQoS);

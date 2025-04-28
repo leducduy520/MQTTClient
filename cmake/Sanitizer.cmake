@@ -47,7 +47,9 @@ function(add_sanitizer_flags)
         if(ENABLE_MEMORY_SANITIZER)
             if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
                 if(ENABLE_ADDRESS_SANITIZER OR ENABLE_THREAD_SANITIZER)
-                    message(WARNING "Memory Sanitizer cannot be used with Address or Thread Sanitizer")
+                    message(
+                        WARNING "Memory Sanitizer cannot be used with Address or Thread Sanitizer"
+                        )
                 else()
                     message(STATUS "Activating Memory Sanitizer")
                     add_compile_options("-fsanitize=memory")
@@ -72,7 +74,9 @@ function(add_sanitizer_flags)
 
             # Check for /ZI (Edit and Continue)
             if(CMAKE_CXX_FLAGS MATCHES "/ZI")
-                message(FATAL_ERROR "ASan does not support /ZI (Edit and Continue). Use /Zi instead.")
+                message(
+                    FATAL_ERROR "ASan does not support /ZI (Edit and Continue). Use /Zi instead."
+                    )
             endif()
 
             # Check for /LTCG or /GL (Link-Time Code Generation)
@@ -103,8 +107,11 @@ function(add_sanitizer_flags)
         endif()
 
         # MSVC doesn't support other sanitizers
-        if(ENABLE_UNDEFINED_SANITIZER OR ENABLE_LEAK_SANITIZER OR 
-           ENABLE_THREAD_SANITIZER OR ENABLE_MEMORY_SANITIZER)
+        if(ENABLE_UNDEFINED_SANITIZER
+           OR ENABLE_LEAK_SANITIZER
+           OR ENABLE_THREAD_SANITIZER
+           OR ENABLE_MEMORY_SANITIZER
+           )
             message(WARNING "Only Address Sanitizer is supported in MSVC")
         endif()
     else()
@@ -122,8 +129,13 @@ if(ENABLE_SANITIZERS)
 endif()
 
 # Add sanitizer-specific compile definitions
-if(ENABLE_SANITIZERS OR ENABLE_ADDRESS_SANITIZER OR ENABLE_UNDEFINED_SANITIZER OR 
-   ENABLE_LEAK_SANITIZER OR ENABLE_THREAD_SANITIZER OR ENABLE_MEMORY_SANITIZER)
+if(ENABLE_SANITIZERS
+   OR ENABLE_ADDRESS_SANITIZER
+   OR ENABLE_UNDEFINED_SANITIZER
+   OR ENABLE_LEAK_SANITIZER
+   OR ENABLE_THREAD_SANITIZER
+   OR ENABLE_MEMORY_SANITIZER
+   )
     add_definitions(-DSANITIZERS_ENABLED)
 endif()
 

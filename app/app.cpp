@@ -83,8 +83,7 @@ int main()
 {
     using namespace mqttcpp;
     auto client = mqttcpp::MqttClient::Instance.get();
-    auto connOpts =
-        mqtt::connect_options_builder().automatic_reconnect().finalize();
+    auto connOpts = mqtt::connect_options_builder().automatic_reconnect().finalize();
     client = new mqttcpp::MqttClient(SERVER_ADDRESS, CLIENT_ID, connOpts);
     client->set_event_handler(main_event_handle);
     if (!client->connect(true, 5))
