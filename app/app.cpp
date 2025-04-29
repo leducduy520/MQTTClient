@@ -4,9 +4,9 @@
 
 const unsigned int QOS = 1;
 const auto TIMEOUT = std::chrono::seconds(5);
-const std::string SERVER_ADDRESS{"tcp://localhost:30520"};
-const std::string CLIENT_ID{"duyld520"};
-const std::string TOPIC{"hello"};
+const std::string SERVER_ADDRESS{"tcp://localhost:1883"};
+const std::string CLIENT_ID{"duyle"};
+const std::string TOPIC{"test/hello"};
 
 bool subscribe_success = false;
 bool publish_success = false;
