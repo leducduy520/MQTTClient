@@ -40,10 +40,9 @@ jobs:
       - name: Determine version bump
         id: version_bump
         run: |
-          labels=$(echo "${{ toJson(github.event.pull_request.labels) }}" | jq -r '.[].name')
-          if echo "$labels" | grep -q "major"; then
+          if [[ "${{ github.event.pull_request.labels.*.name }}" == *"major"* ]]; then
             echo "bump=major" >> $GITHUB_OUTPUT
-          elif echo "$labels" | grep -q "minor"; then
+          elif [[ "${{ github.event.pull_request.labels.*.name }}" == *"minor"* ]]; then
             echo "bump=minor" >> $GITHUB_OUTPUT
           else
             echo "bump=patch" >> $GITHUB_OUTPUT
@@ -56,7 +55,12 @@ jobs:
           import semver
           current = '${{ steps.get_version.outputs.current_version }}'
           bump = '${{ steps.version_bump.outputs.bump }}'
-          new = semver.bump_$bump(current)
+          if bump == 'major':
+              new = semver.bump_major(current)
+          elif bump == 'minor':
+              new = semver.bump_minor(current)
+          else:
+              new = semver.bump_patch(current)
           print(f'new_version={new}')
           " >> $GITHUB_OUTPUT
 
