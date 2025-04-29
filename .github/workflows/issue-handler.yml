@@ -24,6 +24,11 @@ jobs:
             echo "type=other" >> $GITHUB_OUTPUT
           fi
 
+      - name: Check issue labels
+        id: check_labels
+        run: |
+          echo "labels=${{ toJson(github.event.issue.labels) }}"
+
       - name: Add version label
         if: github.event.action == 'opened'
         uses: actions/github-script@v6
