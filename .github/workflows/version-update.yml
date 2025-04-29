@@ -40,9 +40,10 @@ jobs:
       - name: Determine version bump
         id: version_bump
         run: |
-          if [[ "${{ github.event.pull_request.labels.*.name }}" == *"major"* ]]; then
+          labels=$(echo "${{ toJson(github.event.pull_request.labels) }}" | jq -r '.[].name')
+          if echo "$labels" | grep -q "major"; then
             echo "bump=major" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event.pull_request.labels.*.name }}" == *"minor"* ]]; then
+          elif echo "$labels" | grep -q "minor"; then
             echo "bump=minor" >> $GITHUB_OUTPUT
           else
             echo "bump=patch" >> $GITHUB_OUTPUT
@@ -91,4 +92,4 @@ jobs:
             - New version: ${{ steps.new_version.outputs.new_version }}
             - Bump type: ${{ steps.version_bump.outputs.bump }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
