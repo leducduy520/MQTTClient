@@ -185,14 +185,16 @@ TEST_F(MqttClientTest, ShouldReceivePublishedMessage)
     const std::string payload = "test message";
     std::promise<std::string> messagePromise;
     auto messageFuture = messagePromise.get_future();
+    bool messageReceived = false;
 
     // Set up message callback
-    client->set_event_handler([&messagePromise](CallbackEvent event, CallbackVariant info) {
-        if (event == CallbackEvent::EVENT_MESSAGE_ARRIVED)
+    client->set_event_handler([&messagePromise, &messageReceived](CallbackEvent event, CallbackVariant info) {
+        if (event == CallbackEvent::EVENT_MESSAGE_ARRIVED && !messageReceived)
         {
             auto msg = info.asMessage();
             if (msg)
             {
+                messageReceived = true;
                 messagePromise.set_value(msg->get_payload_str());
             }
         }
@@ -206,7 +208,10 @@ TEST_F(MqttClientTest, ShouldReceivePublishedMessage)
 
     // Assert
     EXPECT_EQ(status, std::future_status::ready);
-    EXPECT_EQ(messageFuture.get(), payload);
+    if (status == std::future_status::ready)
+    {
+        EXPECT_EQ(messageFuture.get(), payload);
+    }
 }
 
 // Connection State Tests
