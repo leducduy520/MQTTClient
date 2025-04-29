@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - dev
   pull_request:
     branches:
       - main
@@ -32,9 +29,9 @@ jobs:
           path: |
             out/build/linux-release
             ~/.cache/vcpkg
-          key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt', '**/cmake/*.cmake') }}-${{ hashFiles('**/vcpkg.json') }}
+          key: ${{ runner.os }}-cmake-${{ hashFiles('./CMakeLists.txt') }}-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
-            ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt', '**/cmake/*.cmake') }}-
+            ${{ runner.os }}-cmake-${{ hashFiles('./CMakeLists.txt') }}-
             ${{ runner.os }}-cmake-
       
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
