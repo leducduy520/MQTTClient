@@ -2,10 +2,9 @@ name: Version Update
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened]
     branches:
       - main
-      - master
 
 jobs:
   update-version:
@@ -30,46 +29,82 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install semver
+          echo "Python version: $(python --version)"
+          echo "semver version: $(pip show semver | grep Version)"
 
       - name: Get current version
         id: get_version
         run: |
+          echo "Searching for version in CMakeLists.txt..."
           VERSION=$(grep -m1 "project.*VERSION" CMakeLists.txt | sed -E 's/.*VERSION ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          echo "Found version: $VERSION"
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not find version in CMakeLists.txt"
+            exit 1
+          fi
           echo "current_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Determine version bump
         id: version_bump
         run: |
+          echo "Checking PR labels..."
+          echo "PR labels: ${{ github.event.pull_request.labels.*.name }}"
           if [[ "${{ github.event.pull_request.labels.*.name }}" == *"major"* ]]; then
+            echo "Detected major version bump"
             echo "bump=major" >> $GITHUB_OUTPUT
           elif [[ "${{ github.event.pull_request.labels.*.name }}" == *"minor"* ]]; then
+            echo "Detected minor version bump"
             echo "bump=minor" >> $GITHUB_OUTPUT
           else
+            echo "Defaulting to patch version bump"
             echo "bump=patch" >> $GITHUB_OUTPUT
           fi
 
       - name: Calculate new version
         id: new_version
         run: |
+          echo "Current version: ${{ steps.get_version.outputs.current_version }}"
+          echo "Bump type: ${{ steps.version_bump.outputs.bump }}"
+          
           python -c "
           import semver
+          import sys
+          
           current = '${{ steps.get_version.outputs.current_version }}'
           bump = '${{ steps.version_bump.outputs.bump }}'
-          if bump == 'major':
-              new = semver.bump_major(current)
-          elif bump == 'minor':
-              new = semver.bump_minor(current)
-          else:
-              new = semver.bump_patch(current)
-          print(f'new_version={new}')
+          print(f'Processing version bump:')
+          print(f'- Current version: {current}')
+          print(f'- Bump type: {bump}')
+          
+          try:
+              if not current:
+                  raise ValueError('Current version is empty')
+                  
+              if bump == 'major':
+                  new = semver.bump_major(current)
+              elif bump == 'minor':
+                  new = semver.bump_minor(current)
+              else:
+                  new = semver.bump_patch(current)
+                  
+              print(f'- New version: {new}')
+              print(f'new_version={new}')
+          except Exception as e:
+              print(f'Error: {str(e)}', file=sys.stderr)
+              sys.exit(1)
           " >> $GITHUB_OUTPUT
 
       - name: Update version in CMakeLists.txt
         run: |
+          echo "Updating version in CMakeLists.txt..."
+          echo "New version: ${{ steps.new_version.outputs.new_version }}"
           sed -i "s/VERSION [0-9]\+\.[0-9]\+\.[0-9]\+/VERSION ${{ steps.new_version.outputs.new_version }}/" CMakeLists.txt
+          echo "Updated CMakeLists.txt:"
+          grep "project.*VERSION" CMakeLists.txt
 
       - name: Create version update commit
         run: |
+          echo "Creating version update commit..."
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add CMakeLists.txt
@@ -78,6 +113,7 @@ jobs:
 
       - name: Create release tag
         run: |
+          echo "Creating release tag..."
           git tag -a "v${{ steps.new_version.outputs.new_version }}" -m "Release v${{ steps.new_version.outputs.new_version }}"
           git push origin "v${{ steps.new_version.outputs.new_version }}"
 

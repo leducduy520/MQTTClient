@@ -1,0 +1,141 @@
+name: Issue Handler
+
+on:
+  issues:
+    types: [opened, labeled, unlabeled, closed, reopened]
+
+jobs:
+  handle-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Check issue type
+        id: check_type
+        run: |
+          if [[ "${{ github.event.issue.labels.*.name }}" == *"bug"* ]]; then
+            echo "type=bug" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.issue.labels.*.name }}" == *"enhancement"* ]]; then
+            echo "type=feature" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.issue.labels.*.name }}" == *"documentation"* ]]; then
+            echo "type=docs" >> $GITHUB_OUTPUT
+          else
+            echo "type=other" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check issue labels
+        id: check_labels
+        run: |
+          echo "labels=${{ toJson(github.event.issue.labels) }}"
+
+      - name: Add version label
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueType = process.env.ISSUE_TYPE;
+            let versionLabel = 'patch';
+            
+            if (issueType === 'bug') {
+              versionLabel = 'patch';
+            } else if (issueType === 'feature') {
+              versionLabel = 'minor';
+            } else if (issueType === 'docs') {
+              versionLabel = 'patch';
+            }
+            
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [versionLabel]
+            });
+        env:
+          ISSUE_TYPE: ${{ steps.check_type.outputs.type }}
+
+      - name: Create branch for issue
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            const issueTitle = context.payload.issue.title;
+            const branchName = `issue-${issueNumber}-${issueTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+            
+            // Create branch from main
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branchName}`,
+              sha: context.payload.repository.default_branch
+            });
+            
+            // Comment on issue with branch name
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `A branch has been created for this issue: \`${branchName}\`\n\nYou can start working on it by:\n\`\`\`bash\ngit checkout ${branchName}\n\`\`\``
+            });
+
+      - name: Close related PRs
+        if: github.event.action == 'closed'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            
+            // Find PRs that reference this issue
+            const { data: prs } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['pull-request']
+            });
+            
+            // Close PRs that reference this issue
+            for (const pr of prs) {
+              if (pr.body && pr.body.includes(`#${issueNumber}`)) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  state: 'closed'
+                });
+              }
+            }
+
+      - name: Update issue status
+        if: github.event.action == 'labeled' || github.event.action == 'unlabeled'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const labels = context.payload.issue.labels.map(l => l.name);
+            let status = 'open';
+            
+            if (labels.includes('in-progress')) {
+              status = 'in progress';
+            } else if (labels.includes('review')) {
+              status = 'under review';
+            } else if (labels.includes('blocked')) {
+              status = 'blocked';
+            }
+            
+            // Update issue body with status
+            const currentBody = context.payload.issue.body || '';
+            const statusLine = `## Status\n${status}`;
+            
+            let newBody = currentBody;
+            if (currentBody.includes('## Status')) {
+              newBody = currentBody.replace(/## Status\n.*/, statusLine);
+            } else {
+              newBody = currentBody + '\n\n' + statusLine;
+            }
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: newBody
+            }); 
