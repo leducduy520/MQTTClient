@@ -36,7 +36,10 @@ jobs:
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         env:
-          MQTT_SERVER: "broker.emqx.io"
+          MQTT_SERVER: "tcp://broker.emqx.io:1883"
+          MQTT_TOPIC: "test/topic"
+          MQTT_QOS: "1"
+          MQTT_CLIENT_ID: "test_client"
         with:
           configurePreset: "linux-release"
           configurePresetAdditionalArgs: "['-DENABLE_TESTING=ON']"
