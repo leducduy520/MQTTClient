@@ -13,5 +13,5 @@ jobs:
     steps:
       - name: Print Array
         run: |
-            echo "array=${{ github.event.inputs.array.*.name }}"
+            echo "array=${{ toJson(github.event.inputs.array.*.name) }}"
 
