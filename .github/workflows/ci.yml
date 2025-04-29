@@ -25,18 +25,25 @@ jobs:
         with:
           vcpkgGitCommitId: efb1e7436979a30c4d3e5ab2375fd8e2e461d541
 
-      - name: Cache CMake binaries
+      - name: Cache CMake build
         uses: actions/cache@v4
+        id: cmake-cache
         with:
-          path: out/build/linux-release
-          key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
+          path: |
+            out/build/linux-release
+            ~/.cache/vcpkg
+          key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt', '**/cmake/*.cmake') }}-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
+            ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt', '**/cmake/*.cmake') }}-
             ${{ runner.os }}-cmake-
       
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         env:
-          MQTT_SERVER: "broker.emqx.io"
+          MQTT_SERVER: "tcp://broker.emqx.io:1883"
+          MQTT_TOPIC: "test/topic/${{ github.repository }}/${{ github.run_id }}"
+          MQTT_QOS: "1"
+          MQTT_CLIENT_ID: "test_client_${{ github.repository }}_${{ github.run_id }}_${{ github.run_number }}"
         with:
           configurePreset: "linux-release"
           configurePresetAdditionalArgs: "['-DENABLE_TESTING=ON']"

@@ -10,13 +10,14 @@
 using namespace mqtt;
 using namespace mqttcpp;
 
-const std::string SERVER_ADDRESS{std::getenv("MQTT_SERVER_ADDRESS") ? std::getenv("MQTT_SERVER_ADDRESS")
-                                                                    : "tcp://localhost:30520"};
-const std::string CLIENT_ID{"test_client"};
-const std::string TOPIC{"test/topic"};
-const std::string USERNAME{"duyle"};
-const std::string PASSWORD{"552200"};
-const int QOS = 1;
+const std::string SERVER_ADDRESS{std::getenv("MQTT_SERVER") ? std::getenv("MQTT_SERVER")
+                                                            : "tcp://localhost:1883"};
+const std::string CLIENT_ID{std::getenv("MQTT_CLIENT_ID") ? std::getenv("MQTT_CLIENT_ID")
+                                                            : "test_client"};
+const std::string TOPIC{std::getenv("MQTT_TOPIC") ? std::getenv("MQTT_TOPIC")
+                                                  : "test/topic"};
+const int QOS = std::stoi(std::getenv("MQTT_QOS") ? std::getenv("MQTT_QOS")
+                                                  : "1");
 const int TIMEOUT_MS = 4000;
 
 // Test fixture
@@ -27,8 +28,6 @@ protected:
     {
         // Create the client with test server and client ID
         auto connOpts = mqtt::connect_options_builder()
-                            .user_name(USERNAME)
-                            .password(PASSWORD)
                             .automatic_reconnect()
                             .keep_alive_interval(std::chrono::seconds(30))
                             .clean_session(true)
@@ -186,14 +185,16 @@ TEST_F(MqttClientTest, ShouldReceivePublishedMessage)
     const std::string payload = "test message";
     std::promise<std::string> messagePromise;
     auto messageFuture = messagePromise.get_future();
+    bool messageReceived = false;
 
     // Set up message callback
-    client->set_event_handler([&messagePromise](CallbackEvent event, CallbackVariant info) {
-        if (event == CallbackEvent::EVENT_MESSAGE_ARRIVED)
+    client->set_event_handler([&messagePromise, &messageReceived](CallbackEvent event, CallbackVariant info) {
+        if (event == CallbackEvent::EVENT_MESSAGE_ARRIVED && !messageReceived)
         {
             auto msg = info.asMessage();
             if (msg)
             {
+                messageReceived = true;
                 messagePromise.set_value(msg->get_payload_str());
             }
         }
@@ -207,7 +208,10 @@ TEST_F(MqttClientTest, ShouldReceivePublishedMessage)
 
     // Assert
     EXPECT_EQ(status, std::future_status::ready);
-    EXPECT_EQ(messageFuture.get(), payload);
+    if (status == std::future_status::ready)
+    {
+        EXPECT_EQ(messageFuture.get(), payload);
+    }
 }
 
 // Connection State Tests
