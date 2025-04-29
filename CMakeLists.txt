@@ -17,15 +17,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         )
 endif()
 
-# Check if compiler supports C++17
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.14)
-    message(FATAL_ERROR "MSVC 19.14 or higher is required for C++17 support")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
-    message(FATAL_ERROR "GCC 7.0 or higher is required for C++17 support")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-    message(FATAL_ERROR "Clang 5.0 or higher is required for C++17 support")
-endif()
-
 # Add custom CMake modules path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -50,8 +41,6 @@ include(GNUInstallDirs)
 
 # Project options
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(ENABLE_CMAKE_FORMAT "Enable CMake Format" OFF)
-option(ENABLE_CLANG_FORMAT "Enable Clang Format" OFF)
 option(ENABLE_TESTING "Enable unit tests with GoogleTest" OFF)
 
 # Define sanitizer options
@@ -81,19 +70,6 @@ endif()
 
 # Configure startup parameters
 include(Config)
-
-# Enable CMake Format and Clang Format if specified
-if(ENABLE_CMAKE_FORMAT OR ENABLE_CLANG_FORMAT)
-    include(Tools)
-
-    if(ENABLE_CMAKE_FORMAT)
-        add_cmake_format("(out|vcpkg)")
-    endif()
-
-    if(ENABLE_CLANG_FORMAT)
-        add_clang_format("(out|vcpkg)")
-    endif()
-endif()
 
 # Apply sanitizer flags
 include(Sanitizer)

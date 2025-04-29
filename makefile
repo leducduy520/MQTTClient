@@ -1,6 +1,9 @@
 # Default target
 all: help
 
+# Format configuration
+EXCLUDE_FOLDERS_REGEX ?= (out|vcpkg)
+
 # Detect OS and set vcpkg root
 ifeq ($(OS),Windows_NT)
     # Windows
@@ -102,9 +105,24 @@ test-debug-linux:
 test-release-linux:
 	ctest --preset linux-release
 
-# Format command
-format:
-	cmake --build --preset format
+# Format commands
+format-cmake:
+	@echo "Running cmake-format..."
+	@echo "Finding CMake files..."
+	@find . -name "CMakeLists.txt" -o -name "*.cmake" | grep -E "(./vcpkg|./out)" -v | while read file; do \
+		echo "Formatting: $$file"; \
+		cmake-format -c .cmake-format.yaml -i "$$file"; \
+	done
+
+format-clang:
+	@echo "Running clang-format..."
+	@echo "Finding C/C++ files..."
+	@find . -name "*.cc" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | grep -E "(./vcpkg|./out)" -v | while read file; do \
+		echo "Formatting: $$file"; \
+		clang-format -i "$$file"; \
+	done
+
+format: format-cmake format-clang
 
 # Configure commands
 configure-debug-x64:
@@ -177,8 +195,10 @@ help:
 	@echo "    test-debug-linux   - Run Linux Debug tests"
 	@echo "    test-release-linux - Run Linux Release tests"
 	@echo ""
-	@echo "  Format command:"
-	@echo "    format             - Format code"
+	@echo "  Format commands:"
+	@echo "    format-cmake      - Format CMake files using cmake-format"
+	@echo "    format-clang      - Format C/C++ files using clang-format"
+	@echo "    format           - Run all formatters"
 	@echo ""
 	@echo "  Configure commands:"
 	@echo "    configure-debug-x64     - Configure x64 Debug"

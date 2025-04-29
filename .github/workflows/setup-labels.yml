@@ -1,0 +1,53 @@
+name: Setup Version Labels
+
+on:
+  repository_dispatch:
+    types: [repository_created]
+  workflow_dispatch:
+
+jobs:
+  setup-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create Version Labels
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const labels = [
+              {
+                name: 'major',
+                color: 'FF0000',
+                description: 'Breaking changes that require a major version bump'
+              },
+              {
+                name: 'minor',
+                color: '00FF00',
+                description: 'New features that require a minor version bump'
+              },
+              {
+                name: 'patch',
+                color: '0000FF',
+                description: 'Bug fixes and minor changes that require a patch version bump'
+              }
+            ];
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`Created label: ${label.name}`);
+              } catch (error) {
+                if (error.status === 422) {
+                  console.log(`Label ${label.name} already exists`);
+                } else {
+                  throw error;
+                }
+              }
+            } 
