@@ -107,6 +107,35 @@ The project provides several options that can be enabled or disabled in the `CMa
 - **ENABLE_THREAD_SANITIZER**: Enable Thread Sanitizer (default: **OFF**)
 - **ENABLE_LTO**: Enable Link Time Optimization (default: **OFF**)
 
+## Version Management
+
+This project uses semantic versioning (MAJOR.MINOR.PATCH) and automated version management through GitHub Actions.
+
+### Version Bump Rules
+
+- **MAJOR** version (X.0.0): Breaking changes
+- **MINOR** version (0.X.0): New features
+- **PATCH** version (0.0.X): Bug fixes
+
+### How Version Updates Work
+
+1. **PR Labels**:
+   - Add appropriate version label to your PR:
+     - `major`: For breaking changes
+     - `minor`: For new features
+     - `patch`: For bug fixes
+
+2. **Automated Updates**:
+   - When PR is merged, version is automatically bumped
+   - New version is calculated based on PR label
+   - CMakeLists.txt is updated
+   - New release is created
+
+3. **Release Notes**:
+   - PR description is used for release notes
+   - Version change information is added
+   - Release is tagged with new version
+
 ## Contributing
 
 We welcome contributions to improve MQTTClient! Here are some ways you can contribute:
@@ -121,6 +150,10 @@ We welcome contributions to improve MQTTClient! Here are some ways you can contr
 1. Fork the repository and create a new branch for your changes.
 2. Make your changes and commit them with clear and concise messages.
 3. Push your branch to your fork and submit a pull request.
+4. Add appropriate version label to your PR:
+   - `major`: For breaking changes
+   - `minor`: For new features
+   - `patch`: For bug fixes
 
 ### Areas to Contribute
 
@@ -129,7 +162,14 @@ We welcome contributions to improve MQTTClient! Here are some ways you can contr
 - **Performance**: Optimize the client for better performance in high-load scenarios.
 - **Documentation**: Add examples, tutorials, or improve the existing documentation.
 
-We appreciate your contributions and look forward to collaborating with you!
+## GitHub Workflows
+
+This project uses GitHub Actions for automation. See [WORKFLOWS.md](WORKFLOWS.md) for detailed information about:
+
+- CI/CD pipeline
+- Version management
+- Automated testing
+- Release process
 
 ## License
 

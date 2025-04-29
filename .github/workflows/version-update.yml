@@ -44,7 +44,7 @@ jobs:
           cat CMakeLists.txt
           
           echo "Attempting to extract version..."
-          VERSION=$(grep -G "^project*" -m1 CMakeLists.txt | awk '{print $4}')
+          VERSION=$(grep "project.*VERSION" CMakeLists.txt | sed -E 's/.*VERSION[[:space:]]+([^ ]+).*/\1/')
           
           echo "Found version: $VERSION"
           if [ -z "$VERSION" ]; then
