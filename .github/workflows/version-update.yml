@@ -36,12 +36,31 @@ jobs:
         id: get_version
         run: |
           echo "Searching for version in CMakeLists.txt..."
-          VERSION=$(grep -m1 "project.*VERSION" CMakeLists.txt | sed -E 's/.*VERSION ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          echo "Current directory: $(pwd)"
+          echo "Files in directory:"
+          ls -la
+          
+          echo "CMakeLists.txt content:"
+          cat CMakeLists.txt
+          
+          echo "Attempting to extract version..."
+          VERSION=$(grep -G "^project*" -m1 CMakeLists.txt | awk '{print $4}')
+          
           echo "Found version: $VERSION"
           if [ -z "$VERSION" ]; then
             echo "Error: Could not find version in CMakeLists.txt"
+            echo "Last 10 lines of CMakeLists.txt:"
+            tail -n 10 CMakeLists.txt
             exit 1
           fi
+          
+          # Validate version format
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: Invalid version format: $VERSION"
+            echo "Version must be in format: X.Y.Z"
+            exit 1
+          fi
+          
           echo "current_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Determine version bump

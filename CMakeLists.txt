@@ -30,11 +30,7 @@ endif()
 
 # Project name
 # Set project version
-project(
-    "MQTTClient"
-    VERSION 1.0.0
-    LANGUAGES CXX
-    )
+project( "MQTTClient" VERSION 1.0.0 LANGUAGES CXX )
 
 # Include built-in modules
 include(GNUInstallDirs)
