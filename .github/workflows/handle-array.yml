@@ -1,0 +1,17 @@
+name: Handle Array
+
+on:
+  workflow_dispatch:
+    inputs:
+      array:
+        required: true
+        type: string
+
+jobs:
+  handle-array:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Array
+        run: |
+            echo "array=${{ toJson(github.event.inputs.array) }}"
+
