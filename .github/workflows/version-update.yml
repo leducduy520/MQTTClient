@@ -2,7 +2,7 @@ name: Version Update
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited, closed]
+    types: [closed]
     branches:
       - main
 
