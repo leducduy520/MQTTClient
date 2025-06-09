@@ -405,15 +405,17 @@ namespace mqttcpp
             return false;
         }
 
-        std::function<void()> fn = [this, &msg]() mutable {
+        bool retrieved{false};
+        std::function<void()> fn = [this, &msg, &retrieved]() mutable {
             lg lock(consumeGuard_);
             mqtt::const_message_ptr msg_ptr;
-            if (client_.try_consume_message(&msg_ptr))
+            retrieved = client_.try_consume_message(&msg_ptr);
+            if (retrieved && msg_ptr)
             {
                 msg = msg_ptr->to_string();
             }
         };
-        return common_try(fn, "Pop message");
+        return common_try(fn, "Pop message") && retrieved;
     }
 
 } // namespace mqttcpp
